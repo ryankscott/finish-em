@@ -33,13 +33,13 @@ function Calendar({
 				[UI.Root]: "relative w-full",
 				[UI.Months]: "relative w-full",
 				[UI.Month]: "w-full",
-				[UI.MonthCaption]: "flex h-11 items-center justify-center px-12",
+				[UI.MonthCaption]: "flex h-11 md:h-9 items-center justify-center px-12",
 				[UI.CaptionLabel]: "text-sm font-medium",
 				[UI.Nav]: "absolute inset-x-0 top-0 flex items-center justify-between",
 				[UI.PreviousMonthButton]:
-					"flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
+					"flex size-11 md:size-9 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
 				[UI.NextMonthButton]:
-					"flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
+					"flex size-11 md:size-9 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
 				[UI.MonthGrid]: "w-full table-fixed border-collapse",
 				[UI.Weekdays]: "",
 				[UI.Weekday]: "h-10 text-center text-xs font-normal text-muted",
@@ -47,7 +47,7 @@ function Calendar({
 				[UI.Week]: "",
 				[UI.Day]: "p-0 text-center",
 				[UI.DayButton]:
-					"flex h-11 w-full items-center justify-center rounded-xl text-sm hover:bg-accent-soft aria-selected:bg-accent",
+					"flex h-11 md:h-9 w-full items-center justify-center rounded-xl text-sm hover:bg-accent-soft aria-selected:bg-accent",
 				[DayFlag.today]:
 					"font-semibold text-accent [&_button]:ring-1 [&_button]:ring-inset [&_button]:ring-accent/50",
 				[DayFlag.outside]: "text-muted opacity-45",

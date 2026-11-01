@@ -226,7 +226,7 @@ export function TaskRow({
 						e.stopPropagation();
 						onToggleExpand?.();
 					}}
-					className="flex h-11 w-6 shrink-0 items-center justify-center text-muted"
+					className="flex h-11 md:h-9 w-6 shrink-0 items-center justify-center text-muted"
 				>
 					{expanded ? (
 						<ChevronDown className="size-3.5" />
@@ -250,7 +250,7 @@ export function TaskRow({
 						onError: (err) => toast.error(err.message),
 					});
 				}}
-				className="-mt-1 flex size-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-40"
+				className="-mt-1 flex size-11 md:size-9 shrink-0 items-center justify-center rounded-xl disabled:opacity-40"
 			>
 				<span
 					className={cn(

@@ -67,7 +67,7 @@ export function EventRow({
 						disabled={adding}
 						title="Add a todo linked to this meeting"
 						aria-label="Add a todo linked to this meeting"
-						className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface hover:text-foreground disabled:opacity-50"
+						className="flex h-11 md:h-9 w-11 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface hover:text-foreground disabled:opacity-50"
 					>
 						<Plus className="h-4 w-4" />
 					</button>

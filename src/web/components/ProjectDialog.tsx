@@ -135,7 +135,7 @@ export function ProjectDialog() {
 					value={name}
 					onChange={(e) => setName(e.target.value)}
 					placeholder="What are you working on?"
-					className="project-title-input h-auto min-h-11 min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 py-1 text-[21px] leading-snug tracking-[-0.6px] shadow-none focus-visible:ring-0"
+					className="project-title-input h-auto min-h-11 md:min-h-9 min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 py-1 text-[21px] leading-snug tracking-[-0.6px] shadow-none focus-visible:ring-0"
 				/>
 				<div className="w-14 shrink-0">
 					<EmojiPicker value={emoji} onChange={setEmoji} />
@@ -213,7 +213,7 @@ export function ProjectDialog() {
 					variant="ghost"
 					disabled={pending}
 					onClick={() => setConfirmDelete(true)}
-					className="min-h-11 px-1 text-xs text-p1"
+					className="min-h-11 md:min-h-9 px-1 text-xs text-p1"
 				>
 					<Trash2 />
 					Delete project
@@ -272,7 +272,7 @@ export function ProjectDialog() {
 							<button
 								type="button"
 								onClick={() => ui.closeProjectDialog()}
-								className="min-h-11 px-2 text-xs text-muted"
+								className="min-h-11 md:min-h-9 px-2 text-xs text-muted"
 							>
 								Cancel
 							</button>

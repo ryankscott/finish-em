@@ -145,7 +145,7 @@ export function TaskEditDialog() {
 									ui.closeTaskEditor();
 									ui.openQuickAdd({ parentTask: task });
 								}}
-								className="flex min-h-11 items-center gap-2 text-xs text-muted"
+								className="flex min-h-11 md:min-h-9 items-center gap-2 text-xs text-muted"
 							>
 								<Plus className="size-4" />
 								Add subtask
@@ -168,7 +168,7 @@ export function TaskEditDialog() {
 				type="button"
 				disabled={pending}
 				onClick={() => submit(true)}
-				className="min-h-11 text-xs text-muted disabled:opacity-50"
+				className="min-h-11 md:min-h-9 text-xs text-muted disabled:opacity-50"
 			>
 				{task?.status === "completed" ? "Reopen task" : "Mark complete"}
 			</button>
@@ -207,7 +207,7 @@ export function TaskEditDialog() {
 							ref={closeRef}
 							type="button"
 							onClick={() => ui.closeTaskEditor()}
-							className="min-h-11 px-2 text-xs text-muted"
+							className="min-h-11 md:min-h-9 px-2 text-xs text-muted"
 						>
 							Cancel
 						</button>

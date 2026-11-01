@@ -51,7 +51,7 @@ export function ProjectResourcesEditor({
 					type="button"
 					variant="ghost"
 					size="sm"
-					className="min-h-11 px-2 text-xs"
+					className="min-h-11 md:min-h-9 px-2 text-xs"
 					disabled={editing !== null}
 					onClick={() => {
 						setEditing({ index: resources.length, original: null });
@@ -76,7 +76,7 @@ export function ProjectResourcesEditor({
 						type="button"
 						aria-label={`Edit ${resource.label || "untitled link"}`}
 						disabled={editing !== null}
-						className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-md py-2 text-left hover:bg-surface disabled:opacity-60"
+						className="flex min-h-11 md:min-h-9 min-w-0 flex-1 items-center gap-3 rounded-md py-2 text-left hover:bg-surface disabled:opacity-60"
 						onClick={() => {
 							setEditing({ index, original: { ...resource } });
 							setError("");
@@ -89,7 +89,7 @@ export function ProjectResourcesEditor({
 						variant="ghost"
 						aria-label={`Remove ${resource.label || "untitled link"}`}
 						disabled={editing !== null}
-						className="size-11 shrink-0 px-0 text-muted"
+						className="size-11 md:size-9 shrink-0 px-0 text-muted"
 						onClick={() => onChange(resources.filter((_, i) => i !== index))}
 					>
 						<X />

@@ -221,7 +221,7 @@ export function DelegatePanel({ task: opened }: { task: Task }) {
 					setPrompt(basePrompt());
 					setOpen(true);
 				}}
-				className="flex min-h-11 items-center gap-2 text-xs text-muted"
+				className="flex min-h-11 md:min-h-9 items-center gap-2 text-xs text-muted"
 			>
 				<Sparkles className="size-4" />
 				Delegate to an agent
@@ -240,7 +240,7 @@ export function DelegatePanel({ task: opened }: { task: Task }) {
 						aria-pressed={t.agent === agent}
 						onClick={() => setAgent(t.agent)}
 						className={cn(
-							"min-h-11 rounded-xl border px-3 py-2 text-left text-xs",
+							"min-h-11 md:min-h-9 rounded-xl border px-3 py-2 text-left text-xs",
 							t.agent === agent
 								? "border-accent bg-accent-soft"
 								: "border-border bg-surface-raised",

@@ -48,7 +48,7 @@ export function NowBar({
 						<>
 							<Button
 								size="sm"
-								className="min-h-11"
+								className="min-h-11 md:min-h-9"
 								variant="ghost"
 								aria-label="Pause focus"
 								disabled={stopTask.isPending}
@@ -58,7 +58,7 @@ export function NowBar({
 							</Button>
 							<Button
 								size="sm"
-								className="min-h-11"
+								className="min-h-11 md:min-h-9"
 								disabled={completeTask.isPending}
 								onClick={() =>
 									completeTask.mutate(task, {
@@ -74,7 +74,7 @@ export function NowBar({
 					) : (
 						<Button
 							size="sm"
-							className="min-h-11"
+							className="min-h-11 md:min-h-9"
 							disabled={startTask.isPending}
 							onClick={() => startTask.mutate(task.id, { onError })}
 						>
