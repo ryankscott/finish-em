@@ -329,9 +329,9 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 						aria-label="Collapse sidebar"
 						aria-expanded={true}
 						onClick={() => ui.toggleSidebarCollapsed()}
-						className="flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface"
+						className="flex size-9 items-center justify-center rounded-lg text-muted hover:bg-surface"
 					>
-						<PanelLeftClose className="size-5" />
+						<PanelLeftClose className="size-[18px]" />
 					</button>
 				</div>
 			)}
