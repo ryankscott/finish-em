@@ -162,3 +162,12 @@ body[data-sidebar-resizing] .desktop-sidebar { transition: none; }
         --text-xs--line-height: 1.5;
     }
 }
+
+/* macOS app: the page runs under a transparent 52pt titlebar (see
+   desktop/FinishEmApp.swift). The sidebar's top row and the content header
+   share that strip, and the sidebar row clears the traffic lights. */
+html[data-titlebar="inset"] .desktop-sidebar { padding-top: 0; }
+html[data-titlebar="inset"] .desktop-sidebar[data-collapsed="true"] { padding-top: 52px; }
+html[data-titlebar="inset"] .titlebar-row { height: 52px; align-items: center; padding-left: 68px; margin-bottom: 4px; }
+html[data-titlebar="inset"] .titlebar-row button { width: 36px; height: 36px; }
+html[data-titlebar="inset"] .app-header { min-height: 52px; padding-top: 0; padding-bottom: 0; }

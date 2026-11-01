@@ -37,7 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 	let port = resolvePort()
 	var window: NSWindow!
-	var webView: WKWebView!
+	var webView: TitlebarWebView!
 	var serverProcess: Process?
 
 	// With a remote URL the app is a thin shell over the deployed Cloudflare
@@ -132,7 +132,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		config.userContentController.add(self, name: "appearance")
 		// The web UI posts its reminder list here so macOS can schedule them.
 		config.userContentController.add(self, name: "reminders")
-		webView = WKWebView(
+		// The web UI posts the rects of its titlebar buttons here so clicks on
+		// them reach the page while the rest of the strip drags the window.
+		config.userContentController.add(self, name: "titlebar")
+		// Tells the web UI it is drawn under a transparent titlebar, so it can
+		// leave room for the traffic lights and put its own controls there.
+		config.userContentController.addUserScript(
+			WKUserScript(
+				source: "document.documentElement.dataset.titlebar = 'inset'",
+				injectionTime: .atDocumentStart, forMainFrameOnly: true))
+		webView = TitlebarWebView(
 			frame: NSRect(x: 0, y: 0, width: 1100, height: 800),
 			configuration: config)
 		webView.navigationDelegate = self
@@ -140,10 +149,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 		window = NSWindow(
 			contentRect: NSRect(x: 0, y: 0, width: 1100, height: 800),
-			styleMask: [.titled, .closable, .miniaturizable, .resizable],
+			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
 			backing: .buffered,
 			defer: false)
 		window.title = "finish-em"
+		window.titleVisibility = .hidden
+		window.titlebarAppearsTransparent = true
+		// An empty unified toolbar makes the titlebar 52pt tall and centres the
+		// traffic lights in it, which the web UI's top row is sized to match.
+		window.toolbar = NSToolbar()
+		window.toolbarStyle = .unified
 		window.isReleasedWhenClosed = false
 		window.center()
 		window.setFrameAutosaveName("FinishEmMainWindow")
@@ -163,6 +178,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		_ userContentController: WKUserContentController,
 		didReceive message: WKScriptMessage
 	) {
+		if message.name == "titlebar" {
+			let rects = (message.body as? [[String: Double]]) ?? []
+			webView.noDragRects = rects.map {
+				NSRect(x: $0["x"] ?? 0, y: $0["y"] ?? 0, width: $0["w"] ?? 0, height: $0["h"] ?? 0)
+			}
+			return
+		}
 		if message.name == "reminders" {
 			handleReminderSync(message.body)
 			return
@@ -542,3 +564,26 @@ app.setActivationPolicy(.regular)
 let delegate = AppDelegate()
 app.delegate = delegate
 app.run()
+
+
+/// A WKWebView that drags the window from its top strip, since the web content
+/// now covers the titlebar. Rects reported by the page (its buttons) are exempt.
+final class TitlebarWebView: WKWebView {
+	static let titlebarHeight: CGFloat = 52
+	var noDragRects: [NSRect] = []
+
+	override func mouseDown(with event: NSEvent) {
+		let point = convert(event.locationInWindow, from: nil)
+		// WKWebView is flipped, so y matches the page's CSS coordinates.
+		let inStrip = point.y < Self.titlebarHeight
+		guard inStrip, !noDragRects.contains(where: { $0.contains(point) }) else {
+			super.mouseDown(with: event)
+			return
+		}
+		if event.clickCount == 2 {
+			window?.performZoom(nil)
+		} else {
+			window?.performDrag(with: event)
+		}
+	}
+}

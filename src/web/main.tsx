@@ -33,6 +33,7 @@ import {
 } from "./views/SimpleViews";
 import "@fontsource-variable/dm-sans/opsz.css";
 import "./styles.css";
+import { startTitlebarSync } from "./lib/titlebar";
 
 // No polling and no refetch-on-focus by default. A screen mounts around nine
 // queries, each a full table read, so a global 30s interval meant ~1.3M D1 rows
@@ -157,6 +158,8 @@ const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Missing #root element");
 
 registerServiceWorker();
+
+startTitlebarSync();
 
 createRoot(rootElement).render(
 	<StrictMode>
