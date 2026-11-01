@@ -8,7 +8,6 @@ export type ProjectDraft = {
 	description: string;
 	start: string;
 	end: string;
-	color: string;
 	resources: ProjectResourceInput[];
 };
 
@@ -17,8 +16,6 @@ export function resolveProjectDraft(
 	original?: Project | null,
 ) {
 	if (!draft.name.trim()) return { error: "Project name is required." };
-	if (!/^#[0-9a-f]{6}$/i.test(draft.color))
-		return { error: "Use a six-digit hex colour, for example #435c76." };
 	const startAt = resolveDateField(draft.start, original?.startAt ?? null);
 	const endAt = resolveDateField(draft.end, original?.endAt ?? null);
 	if (startAt === "invalid" || endAt === "invalid")
@@ -39,7 +36,6 @@ export function resolveProjectDraft(
 			description: draft.description.trim(),
 			startAt,
 			endAt,
-			color: draft.color,
 			resources,
 		},
 	};

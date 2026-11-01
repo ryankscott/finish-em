@@ -208,12 +208,7 @@ function ProjectNavLink({
 				className="flex min-h-11 min-w-0 flex-1 items-center gap-2 py-2"
 			>
 				<span className="flex w-4 shrink-0 items-center justify-center text-sm">
-					{project.emoji ?? (
-						<span
-							className="project-color-dot size-1.5 rounded-full"
-							style={{ backgroundColor: project.color }}
-						/>
-					)}
+					{project.emoji ?? <span className="size-1.5 rounded-full bg-muted" />}
 				</span>
 				<span className="min-w-0 flex-1 break-words leading-relaxed">
 					{project.name}
