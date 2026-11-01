@@ -83,43 +83,63 @@ export function GoalsSummary({
 	// On a phone every goal shows as a chip, so the list is visible without
 	// opening the sheet. Tapping a chip opens the sheet rather than ticking it,
 	// because a stray tap while scrolling sideways would complete a goal.
+	// The count stays put while the goal chips scroll, so the total is always
+	// visible and there is one obvious tap target for the full list.
 	const chips = (
-		<ul
-			aria-label={`${heading}: ${summary.completed} of ${summary.total} complete`}
-			className="-mx-[21px] flex gap-1.5 overflow-x-auto px-[21px] pb-0.5 [scrollbar-width:none]"
-		>
-			{sortGoalsForDisplay(goals).map((goal) => (
-				<li key={goal.id} className="shrink-0">
-					<button
-						type="button"
-						onClick={() => setOpen(true)}
-						aria-haspopup="dialog"
-						className={cn(
-							"flex min-h-9 max-w-56 items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 text-xs",
-							goal.done && "text-muted line-through",
-						)}
-					>
-						{goal.done ? (
-							<CheckCircle2 className="size-3.5 shrink-0 text-accent" />
-						) : (
-							<Target className="size-3.5 shrink-0 text-accent" />
-						)}
-						<span className="truncate">{goal.title}</span>
-					</button>
-				</li>
-			))}
-			<li className="shrink-0">
+		<div className="-mr-[21px] flex items-center gap-1.5">
+			{goals.length > 0 && (
 				<button
 					type="button"
 					onClick={() => setOpen(true)}
 					aria-haspopup="dialog"
-					className="flex min-h-9 items-center gap-1 rounded-full border border-dashed border-border px-3 text-xs text-muted"
+					aria-label={`Show all ${summary.total} goals, ${summary.completed} complete`}
+					className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full bg-accent px-3 text-xs font-medium text-accent-foreground tabular-nums"
 				>
-					<Plus className="size-3.5" />
-					{goals.length ? "Goal" : summary.title}
+					{summary.allComplete ? (
+						<CheckCircle2 className="size-3.5" />
+					) : (
+						<Target className="size-3.5" />
+					)}
+					{summary.completed} of {summary.total}
 				</button>
-			</li>
-		</ul>
+			)}
+			<ul
+				aria-label={heading}
+				className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto pr-[21px] pb-0.5 [scrollbar-width:none]"
+			>
+				{sortGoalsForDisplay(goals).map((goal) => (
+					<li key={goal.id} className="shrink-0">
+						<button
+							type="button"
+							onClick={() => setOpen(true)}
+							aria-haspopup="dialog"
+							className={cn(
+								"flex min-h-9 max-w-56 items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 text-xs",
+								goal.done && "text-muted line-through",
+							)}
+						>
+							{goal.done ? (
+								<CheckCircle2 className="size-3.5 shrink-0 text-accent" />
+							) : (
+								<Target className="size-3.5 shrink-0 text-accent" />
+							)}
+							<span className="truncate">{goal.title}</span>
+						</button>
+					</li>
+				))}
+				<li className="shrink-0">
+					<button
+						type="button"
+						onClick={() => setOpen(true)}
+						aria-haspopup="dialog"
+						className="flex min-h-9 items-center gap-1 rounded-full border border-dashed border-border px-3 text-xs text-muted"
+					>
+						<Plus className="size-3.5" />
+						{goals.length ? "Goal" : summary.title}
+					</button>
+				</li>
+			</ul>
+		</div>
 	);
 	if (isMobile)
 		return (
