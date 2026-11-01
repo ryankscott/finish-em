@@ -163,6 +163,14 @@ body[data-sidebar-resizing] .desktop-sidebar { transition: none; }
     }
 }
 
+/* The sidebar's top row and the content header form one 60px bar, so the
+   collapse toggle sits level with New task and search. */
+@media (min-width: 768px) {
+	.desktop-sidebar { padding-top: 0; }
+	.desktop-sidebar[data-collapsed="true"] { padding-top: 8px; }
+	.titlebar-row { height: 60px; align-items: center; margin-bottom: 4px; }
+}
+
 /* macOS app: the page runs under a transparent 52pt titlebar (see
    desktop/FinishEmApp.swift). The sidebar's top row and the content header
    share that strip, and the sidebar row clears the traffic lights. */
