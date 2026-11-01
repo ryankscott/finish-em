@@ -1,6 +1,7 @@
 import {
 	CalendarDays,
 	ChevronDown,
+	ChevronRight,
 	Flag,
 	Folder,
 	Hourglass,
@@ -205,8 +206,9 @@ export function TaskFields({
 					</div>
 				</div>
 			</div>
-			<details className="mt-4 text-sm">
-				<summary className="min-h-11 md:min-h-9 cursor-pointer py-3 text-xs text-muted">
+			<details className="group mt-4 text-sm">
+				<summary className="flex list-none items-center gap-2 [&::-webkit-details-marker]:hidden min-h-11 md:min-h-9 cursor-pointer py-3 text-xs text-muted">
+					<ChevronRight className="size-3.5 shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none" />
 					Repeat, reminders & more
 				</summary>
 				<div className="flex flex-col gap-4 pb-3">

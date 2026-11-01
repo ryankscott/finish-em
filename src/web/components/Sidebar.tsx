@@ -20,6 +20,7 @@ import {
 	CalendarClock,
 	CalendarDays,
 	CheckCircle2,
+	ChevronRight,
 	Flag,
 	GripVertical,
 	Inbox,
@@ -366,14 +367,15 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				isDrawer={isDrawer}
 			/>
 			<details
-				className="mt-1 text-muted"
+				className="group mt-1 text-muted"
 				open={
 					!["/", "/today", "/inbox", "/planning", "/completed"].includes(
 						pathname,
 					) && !pathname.startsWith("/projects")
 				}
 			>
-				<summary className="min-h-11 md:min-h-9 cursor-pointer rounded-xl px-3 py-3 text-[13px] md:text-sm hover:bg-surface">
+				<summary className="flex list-none items-center gap-2 [&::-webkit-details-marker]:hidden min-h-11 md:min-h-9 cursor-pointer rounded-xl px-3 py-3 text-[13px] md:text-sm hover:bg-surface">
+					<ChevronRight className="size-3.5 shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none" />
 					More views
 				</summary>
 				<NavLink
