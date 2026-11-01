@@ -1,13 +1,10 @@
 import { format, parseISO } from "date-fns";
 import { ExternalLink, Pencil } from "lucide-react";
 
-import { toast } from "sonner";
 import type { Project } from "@/server/types";
 
-import { useProjectMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
 import { InlineText } from "./InlineText";
-import { ProjectColourPicker } from "./ProjectColourPicker";
 import { ProjectResourceContent } from "./ProjectResourceContent";
 export function ProjectHeader({
 	project,
@@ -17,7 +14,6 @@ export function ProjectHeader({
 	count: number;
 }) {
 	const ui = useUi();
-	const { updateProject } = useProjectMutations();
 
 	return (
 		<div className="workspace-page border-b border-border !pb-3">
@@ -28,18 +24,6 @@ export function ProjectHeader({
 				</h1>
 				<span className="text-xs text-muted">{count}</span>
 				<div className="ml-auto flex shrink-0 items-center gap-1">
-					{!project.isInbox && (
-						<ProjectColourPicker
-							value={project.color}
-							disabled={updateProject.isPending}
-							onChange={(color) =>
-								updateProject.mutate(
-									{ projectId: project.id, input: { color } },
-									{ onError: (err) => toast.error(err.message) },
-								)
-							}
-						/>
-					)}
 					<button
 						type="button"
 						onClick={() => ui.openProjectDialog({ mode: "edit", project })}

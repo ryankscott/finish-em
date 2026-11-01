@@ -26,7 +26,6 @@ const draft: ProjectDraft = {
 	description: "Details",
 	start: formatDateField(project.startAt),
 	end: formatDateField(project.endAt),
-	color: project.color,
 	resources: project.resources,
 };
 describe("project editing", () => {
@@ -35,9 +34,13 @@ describe("project editing", () => {
 			startAt: project.startAt,
 			endAt: project.endAt,
 			description: "Details",
-			color: project.color,
 			resources: [{ label: "Docs", url: "https://example.com" }],
 		});
+	});
+	test("validates date order", () => {
+		expect(
+			resolveProjectDraft({ ...draft, end: "2020-01-01" }, project).error,
+		).toBeDefined();
 	});
 	test("can clear emoji, dates, description and resources without changing identity or order", () => {
 		const result = resolveProjectDraft(
@@ -73,14 +76,6 @@ describe("project editing", () => {
 				{ ...draft, resources: [{ label: "Docs", url: "broken" }] },
 				project,
 			).error,
-		).toBeDefined();
-	});
-	test("validates colours and date order", () => {
-		expect(
-			resolveProjectDraft({ ...draft, color: "invalid" }, project).error,
-		).toBeDefined();
-		expect(
-			resolveProjectDraft({ ...draft, end: "2020-01-01" }, project).error,
 		).toBeDefined();
 	});
 	test("reordering moves exactly one project and ignores invalid drops", () => {

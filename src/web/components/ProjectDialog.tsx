@@ -1,5 +1,5 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, Palette, Trash2 } from "lucide-react";
+import { CalendarDays, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,6 @@ import { useUi } from "../state/ui";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DateField } from "./DateField";
 import { EmojiPicker } from "./EmojiPicker";
-import { ProjectColourPicker } from "./ProjectColourPicker";
 import { ProjectResourcesEditor } from "./ProjectResourcesEditor";
 
 type ResourceRow = { label: string; url: string };
@@ -36,7 +35,6 @@ export function ProjectDialog() {
 		nameRef.current = node;
 		node?.focus({ preventScroll: true });
 	}, []);
-	const [color, setColor] = useState("#435c76");
 	const [error, setError] = useState("");
 	const isMobile = useIsMobile();
 	const keyboardInset = useKeyboardInset();
@@ -55,7 +53,6 @@ export function ProjectDialog() {
 		if (!state) return;
 		const p = state.mode === "edit" ? state.project : null;
 		setName(p?.name ?? "");
-		setColor(p?.color ?? "#435c76");
 		setError("");
 		setConfirmDelete(false);
 		setEmoji(p?.emoji ?? "");
@@ -76,7 +73,7 @@ export function ProjectDialog() {
 		)
 			return;
 		const result = resolveProjectDraft(
-			{ name, emoji, description, start, end, color, resources },
+			{ name, emoji, description, start, end, resources },
 			editing,
 		);
 		if (result.error) {
@@ -177,19 +174,6 @@ export function ProjectDialog() {
 						onChange={setEnd}
 						aria-label="Project end date"
 					/>
-				</div>
-				<div className="task-fields-row">
-					<span className="flex items-center gap-2 text-xs text-muted">
-						<Palette className="size-3.5" />
-						Colour
-					</span>
-					<div className="flex justify-end">
-						<ProjectColourPicker
-							value={color}
-							onChange={setColor}
-							disabled={pending}
-						/>
-					</div>
 				</div>
 			</div>
 			<ProjectResourcesEditor resources={resources} onChange={setResources} />
