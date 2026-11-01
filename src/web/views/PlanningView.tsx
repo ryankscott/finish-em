@@ -16,6 +16,7 @@ import type { CalendarEvent, Task } from "@/server/types";
 
 import { DayGrid } from "../components/DayGrid";
 import { EventRow } from "../components/EventRow";
+import { GoalsRail } from "../components/GoalsRail";
 import { GoalsSummary } from "../components/GoalsSummary";
 import { TaskRow } from "../components/TaskRow";
 import { cn } from "../lib/cn";
@@ -315,13 +316,15 @@ export function PlanningView() {
 				title={`Planning · ${format(colStart, "d MMM")} - ${format(rangeEnd, "d MMM")}`}
 			/>
 			<div className="flex min-h-0 flex-1 flex-col">
-				<div className="workspace-page shrink-0 !pt-0 !pb-3">
-					<GoalsSummary
-						periodType={goalPeriodType}
-						periodStart={goalPeriodStart}
-						addSignal={goalAddSignal}
-					/>
-				</div>
+				{isMobile && (
+					<div className="workspace-page shrink-0 !pt-0 !pb-3">
+						<GoalsSummary
+							periodType={goalPeriodType}
+							periodStart={goalPeriodStart}
+							addSignal={goalAddSignal}
+						/>
+					</div>
+				)}
 				<div className="flex items-center gap-2 border-b border-border/60 py-2">
 					{/* Week paging and "today" show on every screen size; the hotkeys
 					    ([ ] t) alone gave no visible way to change week. The view-mode
@@ -416,85 +419,102 @@ export function PlanningView() {
 						</button>
 					</div>
 				</div>
-				{showGrid ? (
-					<DayGrid day={colStart} />
-				) : (
-					<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
-						<div
-							className={cn(
-								"w-full min-w-0 gap-2 py-3",
-								layout === "vertical"
-									? "flex flex-col"
-									: "flex flex-row items-start overflow-x-auto",
-							)}
-						>
-							{columns.map((col, ci) => {
-								const itemCount = col.tasks.length + col.events.length;
-								return (
-									<div
-										key={col.key}
-										className={cn(
-											"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
-											layout === "horizontal" && "w-80 shrink-0",
-											ci === selectedFlat?.ci && "border-accent/50",
-										)}
-									>
-										<div
-											className={cn(
-												"border-b border-border/60 px-3 py-2 text-xs font-semibold",
-												col.key === "overdue"
-													? "text-p1"
-													: col.isToday
-														? "text-accent"
-														: "text-muted",
-											)}
-										>
-											{col.label}
-											<span className="ml-2 font-normal text-muted">
-												{itemCount}
-											</span>
-										</div>
-										<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
-											{col.events.length > 0 ? (
-												<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
-													{col.events.map((event) => (
-														<EventRow
-															key={`${event.uid}-${event.recurrenceId}`}
-															event={event}
-															onAddTodo={onAddTodo}
-															adding={addingUid === event.uid}
-														/>
-													))}
+				<div className="flex min-h-0 flex-1 gap-4">
+					<div className="flex min-h-0 min-w-0 flex-1 flex-col">
+						{showGrid ? (
+							<DayGrid day={colStart} />
+						) : (
+							<ScrollArea
+								className="flex-1"
+								horizontal={layout === "horizontal"}
+							>
+								<div
+									className={cn(
+										"w-full min-w-0 gap-2 py-3",
+										layout === "vertical"
+											? "flex flex-col"
+											: "flex flex-row items-start overflow-x-auto",
+									)}
+								>
+									{columns.map((col, ci) => {
+										const itemCount = col.tasks.length + col.events.length;
+										return (
+											<div
+												key={col.key}
+												className={cn(
+													"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
+													layout === "horizontal" && "w-80 shrink-0",
+													ci === selectedFlat?.ci && "border-accent/50",
+												)}
+											>
+												<div
+													className={cn(
+														"border-b border-border/60 px-3 py-2 text-xs font-semibold",
+														col.key === "overdue"
+															? "text-p1"
+															: col.isToday
+																? "text-accent"
+																: "text-muted",
+													)}
+												>
+													{col.label}
+													<span className="ml-2 font-normal text-muted">
+														{itemCount}
+													</span>
 												</div>
-											) : null}
-											{itemCount === 0 ? (
-												<p className="px-2 py-1.5 text-xs text-muted/50">
-													No tasks
-												</p>
-											) : (
-												col.tasks.map((task, ri) => (
-													<TaskRow
-														key={task.id}
-														task={task}
-														project={projectById.get(task.projectId)}
-														selected={
-															ci === selectedFlat?.ci && ri === selectedFlat?.ri
-														}
-														depth={0}
-														hasSubtasks={false}
-														expanded={false}
-														showProject
-														onOpen={() => ui.openTaskEditor(task)}
-													/>
-												))
-											)}
-										</div>
-									</div>
-								);
-							})}
+												<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
+													{col.events.length > 0 ? (
+														<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
+															{col.events.map((event) => (
+																<EventRow
+																	key={`${event.uid}-${event.recurrenceId}`}
+																	event={event}
+																	onAddTodo={onAddTodo}
+																	adding={addingUid === event.uid}
+																/>
+															))}
+														</div>
+													) : null}
+													{itemCount === 0 ? (
+														<p className="px-2 py-1.5 text-xs text-muted/50">
+															No tasks
+														</p>
+													) : (
+														col.tasks.map((task, ri) => (
+															<TaskRow
+																key={task.id}
+																task={task}
+																project={projectById.get(task.projectId)}
+																selected={
+																	ci === selectedFlat?.ci &&
+																	ri === selectedFlat?.ri
+																}
+																depth={0}
+																hasSubtasks={false}
+																expanded={false}
+																showProject
+																onOpen={() => ui.openTaskEditor(task)}
+															/>
+														))
+													)}
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</ScrollArea>
+						)}
+					</div>
+					{!isMobile && (
+						<div className="min-h-0 overflow-y-auto py-3">
+							<GoalsRail
+								periodType={goalPeriodType}
+								periodStart={goalPeriodStart}
+								addSignal={goalAddSignal}
+							/>
 						</div>
-					</ScrollArea>
-				)}
+					)}
+				</div>
 			</div>
 		</>
 	);
