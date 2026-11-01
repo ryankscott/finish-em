@@ -323,37 +323,54 @@ export function PlanningView() {
 					/>
 				</div>
 				<div className="flex items-center gap-2 border-b border-border/60 py-2">
-					{/* Week paging, "today", and the day/work-week/week toggle were all
-					    hotkey-only ([ ] t v), which left the Planning view stuck on the
-					    current week with no way to change range on a phone. */}
-					{isMobile ? (
-						<div className="flex min-w-0 flex-1 items-center gap-1">
-							<button
-								type="button"
-								aria-label="Previous week"
-								onClick={() => setAnchorDate((d) => addDays(d, -7))}
-								className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted"
-							>
-								<ChevronLeft className="h-4 w-4" />
-							</button>
-							<button
-								type="button"
-								onClick={() => {
-									setAnchorDate(startOfDay(new Date()));
-									setSelectedIndex(0);
-								}}
-								className="h-9 shrink-0 rounded-md border border-border px-3 text-xs text-muted"
-							>
-								Today
-							</button>
-							<button
-								type="button"
-								aria-label="Next week"
-								onClick={() => setAnchorDate((d) => addDays(d, 7))}
-								className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted"
-							>
-								<ChevronRight className="h-4 w-4" />
-							</button>
+					{/* Week paging and "today" show on every screen size; the hotkeys
+					    ([ ] t) alone gave no visible way to change week. The view-mode
+					    toggle stays phone-only because desktop has the v hotkey. */}
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							isMobile && "min-w-0 flex-1",
+						)}
+					>
+						<button
+							type="button"
+							aria-label="Previous week"
+							onClick={() => setAnchorDate((d) => addDays(d, -7))}
+							title="Previous week ( [ )"
+							className={cn(
+								"flex shrink-0 items-center justify-center rounded-md border border-border text-muted hover:text-foreground",
+								isMobile ? "h-9 w-9" : "h-7 w-7",
+							)}
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setAnchorDate(startOfDay(new Date()));
+								setSelectedIndex(0);
+							}}
+							title="This week ( t )"
+							className={cn(
+								"shrink-0 rounded-md border border-border px-3 text-xs text-muted hover:text-foreground",
+								isMobile ? "h-9" : "h-7",
+							)}
+						>
+							Today
+						</button>
+						<button
+							type="button"
+							aria-label="Next week"
+							onClick={() => setAnchorDate((d) => addDays(d, 7))}
+							title="Next week ( ] )"
+							className={cn(
+								"flex shrink-0 items-center justify-center rounded-md border border-border text-muted hover:text-foreground",
+								isMobile ? "h-9 w-9" : "h-7 w-7",
+							)}
+						>
+							<ChevronRight className="h-4 w-4" />
+						</button>
+						{isMobile ? (
 							<button
 								type="button"
 								onClick={() => setViewMode((mode) => nextMode[mode])}
@@ -361,8 +378,8 @@ export function PlanningView() {
 							>
 								{VIEW_MODE_LABELS[viewMode]}
 							</button>
-						</div>
-					) : null}
+						) : null}
+					</div>
 					<div
 						className={cn(
 							"flex items-center rounded-md border border-border p-0.5",
