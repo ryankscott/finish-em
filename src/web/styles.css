@@ -176,7 +176,7 @@ body[data-sidebar-resizing] .desktop-sidebar { transition: none; }
    desktop/FinishEmApp.swift). The sidebar's top row and the content header
    share that strip, and the sidebar row clears the traffic lights. */
 html[data-titlebar="inset"] .desktop-sidebar { padding-top: 0; }
-html[data-titlebar="inset"] .titlebar-row { height: 52px; align-items: center; padding-left: 62px; margin-bottom: 4px; }
+html[data-titlebar="inset"] .titlebar-row { height: 52px; align-items: center; padding-left: 74px; margin-bottom: 4px; }
 html[data-titlebar="inset"] .titlebar-row button { width: 36px; height: 36px; }
-html[data-titlebar="inset"] .sidebar-corner-toggle { left: 74px; top: 8px; }
+html[data-titlebar="inset"] .sidebar-corner-toggle { left: 86px; top: 8px; }
 html[data-titlebar="inset"] .app-header { min-height: 52px; padding-top: 0; padding-bottom: 0; }
