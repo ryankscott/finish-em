@@ -21,15 +21,15 @@
 }
 
 html.light {
-	--color-background: #f8f6f3;
-	--color-surface: #f0eeeb;
-	--color-surface-raised: #fffefa;
-	--color-sidebar: #efede9;
-	--color-border: #e4e1df;
+	--color-background: #f5f7fa;
+	--color-surface: #edf0f4;
+	--color-surface-raised: #fbfcfe;
+	--color-sidebar: #eceff3;
+	--color-border: #dde2e9;
 	--color-foreground: #293440;
 	--color-muted: #69717a;
 	--color-accent: #435c76;
-	--color-accent-foreground: #fffefa;
+	--color-accent-foreground: #fbfcfe;
 	--color-accent-soft: #e7edf3;
 	--color-p1: #a34453;
 	--color-p2: #8a642b;
@@ -59,7 +59,13 @@ body {
 	color: var(--color-foreground);
 	font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 	font-size: 14px;
+	line-height: 1.5;
+	/* opsz axis: small text gets the open, sturdier cut and large titles the
+	   tighter display cut, instead of one 14px-tuned design at every size. */
+	font-optical-sizing: auto;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 	/* Kill the rubber-band scroll and grey tap flash that make a standalone
 	   PWA feel like a web page rather than an app. */
 	overscroll-behavior-y: contain;
@@ -134,7 +140,7 @@ body {
 /* Shared geometry follows the approved Today / task-editor prototype. */
 .workspace-page { width: 100%; max-width: 1120px; margin-inline: auto; padding: 12px 38px 32px; }
 .task-editor-panel { width: 380px; min-width: 0; flex-shrink: 0; border-left: 1px solid var(--color-border); background: var(--color-surface-raised); }
-.task-fields-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 49px; border-bottom: 1px solid var(--color-border); }
+.task-fields-row { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 49px; border-bottom: 1px solid var(--color-border); }
 .task-fields-row > :last-child { min-width: 0; }
 .task-calendar { --rdp-day-width: 44px; --rdp-day-height: 44px; }
 .task-list:has(:focus-visible) [data-selected], .task-list[data-keyboard-active] [data-selected] { background: var(--color-accent-soft); }

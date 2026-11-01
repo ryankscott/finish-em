@@ -353,7 +353,6 @@ export function AppShell() {
 					<main className="workspace-content flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 						<Outlet />
 					</main>
-					<TaskEditDialog />
 				</div>
 				{isMobile ? null : (
 					<>
@@ -369,6 +368,9 @@ export function AppShell() {
 					/>
 				) : null}
 			</div>
+			{/* Beside the whole content column, not inside it, so the panel runs
+			    the full window height instead of starting under the header. */}
+			<TaskEditDialog />
 
 			{isMobile ? (
 				<Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>

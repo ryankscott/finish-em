@@ -180,7 +180,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		// zinc-950 after a switch to the light theme.
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute("content", theme === "dark" ? "#191e25" : "#f8f6f3");
+			?.setAttribute("content", theme === "dark" ? "#191e25" : "#f5f7fa");
 		// The native desktop shell draws its own titlebar, which stays on the OS
 		// appearance unless we tell it which way the web UI went.
 		window.webkit?.messageHandlers?.appearance?.postMessage(theme);
