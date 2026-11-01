@@ -27,7 +27,7 @@ export function ProjectHeader({
 					<button
 						type="button"
 						onClick={() => ui.openProjectDialog({ mode: "edit", project })}
-						className="flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:bg-surface hover:text-foreground"
+						className="flex min-h-11 md:min-h-9 items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:bg-surface hover:text-foreground"
 					>
 						<Pencil className="h-3.5 w-3.5" />
 						Edit
@@ -64,7 +64,7 @@ export function ProjectHeader({
 						<button
 							type="button"
 							onClick={() => ui.openProjectDialog({ mode: "edit", project })}
-							className="min-h-11 rounded-md px-2 text-xs text-muted hover:bg-surface"
+							className="min-h-11 md:min-h-9 rounded-md px-2 text-xs text-muted hover:bg-surface"
 						>
 							Edit links
 						</button>
@@ -75,7 +75,7 @@ export function ProjectHeader({
 							href={resource.url}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="flex min-h-11 min-w-0 items-center gap-3 border-b border-border py-2 text-foreground hover:bg-surface"
+							className="flex min-h-11 md:min-h-9 min-w-0 items-center gap-3 border-b border-border py-2 text-foreground hover:bg-surface"
 						>
 							<ProjectResourceContent
 								label={resource.label}

@@ -123,7 +123,7 @@ export function TodayView() {
 					<button
 						type="button"
 						onClick={() => ui.setPlanDayOpen(true)}
-						className="min-h-11 text-xs text-accent"
+						className="min-h-11 md:min-h-9 text-xs text-accent"
 					>
 						Plan day
 					</button>

@@ -82,7 +82,7 @@ export function DateField({
 			aria-haspopup="dialog"
 			aria-expanded={open}
 			className={cn(
-				"flex min-h-11 w-full items-center gap-2 rounded-lg px-1 text-left text-sm hover:bg-accent-soft",
+				"flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-1 text-left text-sm hover:bg-accent-soft",
 				current ? "text-accent" : "text-muted",
 				compact &&
 					"relative min-h-7 px-0 text-[11px] md:text-xs before:absolute before:inset-x-0 before:-inset-y-2",
@@ -114,7 +114,7 @@ export function DateField({
 							setError("");
 						}}
 						aria-pressed={!!selected && isSameDay(selected, preset.date)}
-						className="min-h-11 rounded-xl border border-border bg-background px-1 text-xs aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent"
+						className="min-h-11 md:min-h-9 rounded-xl border border-border bg-background px-1 text-xs aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent"
 					>
 						{preset.label}
 					</button>
@@ -148,7 +148,7 @@ export function DateField({
 				placeholder={
 					dateOnly ? "Tomorrow or 2026-10-26" : "Tomorrow or 2026-10-26 14:00"
 				}
-				className="h-11 text-base"
+				className="h-11 md:h-9 text-base"
 			/>
 			{error && (
 				<p role="alert" className="text-xs text-p1">
@@ -163,7 +163,7 @@ export function DateField({
 							setDraft("");
 							setError("");
 						}}
-						className="min-h-11 px-1 text-xs text-muted"
+						className="min-h-11 md:min-h-9 px-1 text-xs text-muted"
 					>
 						Remove date
 					</button>
@@ -192,7 +192,7 @@ export function DateField({
 						<button
 							type="button"
 							onClick={() => changeOpen(false)}
-							className="min-h-11 px-2 text-sm text-muted"
+							className="min-h-11 md:min-h-9 px-2 text-sm text-muted"
 						>
 							Cancel
 						</button>

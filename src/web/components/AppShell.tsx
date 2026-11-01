@@ -217,7 +217,7 @@ export function AppShell() {
 							type="button"
 							aria-label="Show navigation"
 							onClick={ui.toggleSidebarCollapsed}
-							className="sidebar-reveal size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+							className="sidebar-reveal size-11 md:size-9 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 						>
 							<PanelLeftOpen className="size-5" />
 						</button>
@@ -227,7 +227,7 @@ export function AppShell() {
 							type="button"
 							aria-label="Back"
 							onClick={() => router.history.back()}
-							className="flex size-11 shrink-0 items-center justify-center text-muted"
+							className="flex size-11 md:size-9 shrink-0 items-center justify-center text-muted"
 						>
 							<ChevronLeft className="size-5" />
 						</button>
@@ -261,7 +261,7 @@ export function AppShell() {
 									ui.setSearch("");
 									if (pathname === "/search") navigate({ to: "/today" });
 								}}
-								className="flex size-11 items-center justify-center text-muted"
+								className="flex size-11 md:size-9 items-center justify-center text-muted"
 							>
 								<X className="size-4" />
 							</button>
@@ -276,7 +276,7 @@ export function AppShell() {
 							{!isMobile && (
 								<Button
 									onClick={() => ui.openQuickAdd()}
-									className="h-[42px] text-xs"
+									className="h-[42px] text-xs md:h-9"
 								>
 									<Plus className="size-4" />
 									New task
@@ -286,7 +286,7 @@ export function AppShell() {
 								type="button"
 								aria-label="Search tasks"
 								onClick={() => setSearchOpen(true)}
-								className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+								className="flex size-11 md:size-9 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 							>
 								<Search className="size-[18px]" />
 							</button>
@@ -295,7 +295,7 @@ export function AppShell() {
 									<button
 										type="button"
 										aria-label="Day actions"
-										className="-mr-3 flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+										className="-mr-3 flex size-11 md:size-9 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 									>
 										<MoreHorizontal className="size-[18px]" />
 									</button>
@@ -308,21 +308,21 @@ export function AppShell() {
 										<button
 											type="button"
 											onClick={() => ui.setPlanDayOpen(true)}
-											className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+											className="min-h-11 md:min-h-9 rounded-lg px-3 text-left text-sm hover:bg-surface"
 										>
 											Plan day
 										</button>
 										<button
 											type="button"
 											onClick={() => ui.setCloseDayOpen(true)}
-											className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+											className="min-h-11 md:min-h-9 rounded-lg px-3 text-left text-sm hover:bg-surface"
 										>
 											Close day
 										</button>
 										<button
 											type="button"
 											onClick={() => ui.toggleTheme()}
-											className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-left text-sm hover:bg-surface"
+											className="flex min-h-11 md:min-h-9 items-center gap-2 rounded-lg px-3 text-left text-sm hover:bg-surface"
 										>
 											{ui.theme === "dark" ? (
 												<Sun className="size-4" />
@@ -335,7 +335,7 @@ export function AppShell() {
 											<button
 												type="button"
 												onClick={() => ui.setHelpOpen(true)}
-												className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+												className="min-h-11 md:min-h-9 rounded-lg px-3 text-left text-sm hover:bg-surface"
 											>
 												Keyboard shortcuts
 											</button>

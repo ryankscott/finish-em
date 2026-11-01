@@ -73,7 +73,7 @@ export function ProjectPickerSheet({
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Search projects"
 							// 16px minimum or iOS zooms the viewport on focus.
-							className="h-11 w-full rounded-md border border-border bg-surface pr-3 pl-9 text-base outline-none placeholder:text-muted focus:border-accent"
+							className="h-11 md:h-9 w-full rounded-md border border-border bg-surface pr-3 pl-9 text-base outline-none placeholder:text-muted focus:border-accent"
 							autoCapitalize="off"
 							autoCorrect="off"
 							spellCheck={false}

@@ -162,7 +162,7 @@ export function QuickAdd() {
 						<SheetTitle className="text-lg">New task</SheetTitle>
 						<button
 							type="button"
-							className="min-h-11 px-2 text-xs text-muted"
+							className="min-h-11 md:min-h-9 px-2 text-xs text-muted"
 							onClick={() => ui.closeQuickAdd()}
 						>
 							Cancel

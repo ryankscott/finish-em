@@ -59,14 +59,14 @@ function GoalRow({ goal }: { goal: Goal }) {
 						aria-label="Goal title"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
-						className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-2 text-base"
+						className="min-h-11 md:min-h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-2 text-base"
 						required
 					/>
 					<button
 						type="submit"
 						disabled={updateGoal.isPending}
 						aria-label="Save goal"
-						className="flex size-11 shrink-0 items-center justify-center text-accent"
+						className="flex size-11 md:size-9 shrink-0 items-center justify-center text-accent"
 					>
 						<Check className="size-4" />
 					</button>
@@ -74,7 +74,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 						type="button"
 						aria-label="Cancel goal edit"
 						onClick={() => setEditing(false)}
-						className="flex size-11 shrink-0 items-center justify-center text-muted"
+						className="flex size-11 md:size-9 shrink-0 items-center justify-center text-muted"
 					>
 						<X className="size-4" />
 					</button>
@@ -83,7 +83,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 				<>
 					<label
 						htmlFor={checkboxId}
-						className="flex min-h-11 min-w-0 flex-1 items-start gap-3 py-2.5"
+						className="flex min-h-11 md:min-h-9 min-w-0 flex-1 items-start gap-3 py-2.5"
 					>
 						<Checkbox
 							id={checkboxId}
@@ -107,7 +107,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 							<button
 								type="button"
 								aria-label={`Actions for goal ${goal.title}`}
-								className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface"
+								className="flex size-11 md:size-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface"
 							>
 								<MoreHorizontal className="size-4" />
 							</button>
@@ -123,7 +123,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 									setEditing(true);
 									setMenuOpen(false);
 								}}
-								className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs hover:bg-surface"
+								className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs hover:bg-surface"
 							>
 								<Pencil className="size-3.5" />
 								Edit goal
@@ -137,7 +137,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 										onError: (err) => toast.error(err.message),
 									})
 								}
-								className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-p1 hover:bg-surface"
+								className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-p1 hover:bg-surface"
 							>
 								<Trash2 className="size-3.5" />
 								Delete goal
@@ -217,13 +217,13 @@ export function GoalsPanel({
 					onChange={(e) => setValue(e.target.value)}
 					placeholder="Add a goal…"
 					required
-					className="min-h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-base"
+					className="min-h-11 md:min-h-9 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-base"
 				/>
 				<Button
 					type="submit"
 					disabled={createGoal.isPending}
 					aria-label="Add goal"
-					className="size-11 p-0"
+					className="size-11 md:size-9 p-0"
 				>
 					<Plus className="size-4" />
 				</Button>

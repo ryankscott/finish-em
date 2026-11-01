@@ -88,7 +88,7 @@ export function TaskFields({
 					>
 						<SelectTrigger
 							id={`${id}-project`}
-							className="h-11 border-0 bg-transparent px-1 shadow-none"
+							className="h-11 md:h-9 border-0 bg-transparent px-1 shadow-none"
 						>
 							<SelectValue placeholder="Choose project" />
 						</SelectTrigger>
@@ -138,7 +138,7 @@ export function TaskFields({
 					>
 						<SelectTrigger
 							id={`${id}-priority`}
-							className="h-11 border-0 bg-transparent px-1 shadow-none"
+							className="h-11 md:h-9 border-0 bg-transparent px-1 shadow-none"
 						>
 							<SelectValue />
 						</SelectTrigger>
@@ -167,14 +167,14 @@ export function TaskFields({
 							value={value.estimate}
 							onChange={(e) => set("estimate", e.target.value)}
 							placeholder="No estimate"
-							className="h-11 border-0 bg-transparent px-1 text-sm shadow-none"
+							className="h-11 md:h-9 border-0 bg-transparent px-1 text-sm shadow-none"
 						/>
 						<Popover>
 							<PopoverTrigger asChild>
 								<button
 									type="button"
 									aria-label="Estimate suggestions"
-									className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+									className="flex size-11 md:size-9 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 								>
 									<ChevronDown className="size-4" />
 								</button>
@@ -191,7 +191,7 @@ export function TaskFields({
 											type="button"
 											key={minutes}
 											onClick={() => set("estimate", `${minutes}m`)}
-											className="min-h-11 rounded-xl bg-surface px-3 text-sm hover:bg-accent-soft"
+											className="min-h-11 md:min-h-9 rounded-xl bg-surface px-3 text-sm hover:bg-accent-soft"
 										>
 											{minutes}m
 										</button>
@@ -206,7 +206,7 @@ export function TaskFields({
 				</div>
 			</div>
 			<details className="mt-4 text-sm">
-				<summary className="min-h-11 cursor-pointer py-3 text-xs text-muted">
+				<summary className="min-h-11 md:min-h-9 cursor-pointer py-3 text-xs text-muted">
 					Repeat, reminders & more
 				</summary>
 				<div className="flex flex-col gap-4 pb-3">
@@ -229,7 +229,7 @@ export function TaskFields({
 							}
 						/>
 					</div>
-					<label className="flex min-h-11 items-center gap-2 text-xs text-muted">
+					<label className="flex min-h-11 md:min-h-9 items-center gap-2 text-xs text-muted">
 						<input
 							type="checkbox"
 							checked={value.someday}

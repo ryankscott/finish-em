@@ -381,7 +381,7 @@ export function QuickAddPills({
 					<button
 						type="button"
 						onClick={onPickProject}
-						className="flex min-h-11 w-full items-center gap-2 rounded-md border border-border px-3 text-left text-sm"
+						className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-md border border-border px-3 text-left text-sm"
 					>
 						{activeProject ? (
 							<>

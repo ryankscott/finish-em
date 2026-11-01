@@ -84,7 +84,7 @@ function NavLink({
 				"px-3",
 				// The drawer is a touch surface with no hover state, so rows get
 				// a real tap target instead of the dense desktop row height.
-				"min-h-11 py-2.5",
+				"min-h-11 py-2.5 md:min-h-9 md:py-1.5",
 				active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface",
 			)}
 		>
@@ -165,7 +165,7 @@ function ProjectNavLink({
 						onMove(e.key === "ArrowUp" ? -1 : 1);
 					}
 				}}
-				className="flex min-h-11 w-6 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg text-muted active:cursor-grabbing [@media(pointer:coarse)]:w-11"
+				className="flex min-h-11 md:min-h-9 w-6 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg text-muted active:cursor-grabbing [@media(pointer:coarse)]:w-11"
 				disabled={disabled}
 			>
 				<GripVertical className="size-3.5" />
@@ -174,7 +174,7 @@ function ProjectNavLink({
 				to="/projects/$projectId"
 				params={{ projectId: String(project.id) }}
 				aria-current={active ? "page" : undefined}
-				className="flex min-h-11 min-w-0 flex-1 items-center gap-2 py-2"
+				className="flex min-h-11 md:min-h-9 min-w-0 flex-1 items-center gap-2 py-2"
 			>
 				<span className="flex w-4 shrink-0 items-center justify-center text-sm">
 					{project.emoji ?? <span className="size-1.5 rounded-full bg-muted" />}
@@ -191,7 +191,7 @@ function ProjectNavLink({
 					<button
 						type="button"
 						aria-label={`Actions for project ${project.name}`}
-						className="flex min-h-11 w-7 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface-raised [@media(pointer:coarse)]:w-11"
+						className="flex min-h-11 md:min-h-9 w-7 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface-raised [@media(pointer:coarse)]:w-11"
 					>
 						<MoreHorizontal className="size-4" />
 					</button>
@@ -206,7 +206,7 @@ function ProjectNavLink({
 							setMenuOpen(false);
 							ui.openProjectDialog({ mode: "edit", project });
 						}}
-						className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs hover:bg-surface"
+						className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs hover:bg-surface"
 					>
 						<Pencil className="size-3.5" />
 						Edit project
@@ -217,7 +217,7 @@ function ProjectNavLink({
 							setMenuOpen(false);
 							setConfirmOpen(true);
 						}}
-						className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-p1 hover:bg-surface"
+						className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-p1 hover:bg-surface"
 					>
 						<Trash2 className="size-3.5" />
 						Delete project
@@ -373,7 +373,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 					) && !pathname.startsWith("/projects")
 				}
 			>
-				<summary className="min-h-11 cursor-pointer rounded-xl px-3 py-3 text-[13px] md:text-sm hover:bg-surface">
+				<summary className="min-h-11 md:min-h-9 cursor-pointer rounded-xl px-3 py-3 text-[13px] md:text-sm hover:bg-surface">
 					More views
 				</summary>
 				<NavLink

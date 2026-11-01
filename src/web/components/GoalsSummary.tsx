@@ -99,7 +99,7 @@ export function GoalsSummary({
 								type="button"
 								aria-label="Close goals"
 								onClick={() => setOpen(false)}
-								className="flex size-11 items-center justify-center text-muted"
+								className="flex size-11 md:size-9 items-center justify-center text-muted"
 							>
 								<X className="size-4" />
 							</button>
@@ -126,7 +126,7 @@ export function GoalsSummary({
 						type="button"
 						aria-label="Close goals"
 						onClick={() => setOpen(false)}
-						className="flex size-11 items-center justify-center text-muted"
+						className="flex size-11 md:size-9 items-center justify-center text-muted"
 					>
 						<X className="size-4" />
 					</button>
