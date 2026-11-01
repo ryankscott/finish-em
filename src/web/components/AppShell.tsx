@@ -189,10 +189,22 @@ export function AppShell() {
 				ui.sidebarCollapsed && "sidebar-collapsed",
 			)}
 		>
-			{isMobile ? null : (
+			{isMobile ? null : ui.sidebarCollapsed ? (
+				// Collapsed hides the sidebar outright; the toggle stays in the
+				// window's top-left corner, beside the macOS window buttons.
+				<button
+					type="button"
+					aria-label="Show sidebar"
+					aria-expanded={false}
+					onClick={ui.toggleSidebarCollapsed}
+					className="sidebar-corner-toggle flex size-9 items-center justify-center rounded-lg text-muted hover:bg-surface"
+				>
+					<PanelLeftOpen className="size-[18px]" />
+				</button>
+			) : (
 				<>
 					<Sidebar />
-					{!ui.sidebarCollapsed && <ResizeHandle />}
+					<ResizeHandle />
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
