@@ -1,4 +1,4 @@
-import { addDays, format, parseISO, startOfDay } from "date-fns";
+import { addDays, endOfDay, format, parseISO, startOfDay } from "date-fns";
 import { CalendarClock, X } from "lucide-react";
 import { useState } from "react";
 
@@ -38,7 +38,9 @@ export function MeetingLinkField({ value, onChange }: MeetingLinkFieldProps) {
 	const now = new Date();
 	const { data: events = [] } = useCalendarEvents({
 		from: startOfDay(now).toISOString(),
-		to: addDays(now, WINDOW_DAYS).toISOString(),
+		// Day-aligned on both ends: a millisecond-precise bound changes the query
+		// key on every render, and each render then re-reads the calendar from D1.
+		to: endOfDay(addDays(now, WINDOW_DAYS)).toISOString(),
 	});
 
 	const linked = events.find((e) => e.uid === value);
