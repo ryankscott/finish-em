@@ -21,28 +21,39 @@ export function clearUndo(): void {
 	stack.length = 0;
 }
 
+export function peekUndo(): UndoRecord | undefined {
+	return stack.at(-1);
+}
+
 export function useUndo() {
 	const queryClient = useQueryClient();
 
-	const undoLast = useCallback(async () => {
-		const record = stack.pop();
-		if (!record) {
-			toast.info("Nothing to undo");
-			return;
-		}
-		try {
-			const message = await executeUndo(api, record);
-			await Promise.all([
-				queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-				queryClient.invalidateQueries({ queryKey: ["projects"] }),
-				queryClient.invalidateQueries({ queryKey: ["goals"] }),
-				queryClient.invalidateQueries({ queryKey: ["reminders"] }),
-			]);
-			toast.success(message);
-		} catch (error) {
-			toast.error(error instanceof Error ? error.message : String(error));
-		}
-	}, [queryClient]);
+	const undoLast = useCallback(
+		async (expected?: UndoRecord) => {
+			if (expected && peekUndo() !== expected) {
+				toast.info("Use Undo on your latest change first");
+				return;
+			}
+			const record = stack.pop();
+			if (!record) {
+				toast.info("Nothing to undo");
+				return;
+			}
+			try {
+				const message = await executeUndo(api, record);
+				await Promise.all([
+					queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+					queryClient.invalidateQueries({ queryKey: ["projects"] }),
+					queryClient.invalidateQueries({ queryKey: ["goals"] }),
+					queryClient.invalidateQueries({ queryKey: ["reminders"] }),
+				]);
+				toast.success(message);
+			} catch (error) {
+				toast.error(error instanceof Error ? error.message : String(error));
+			}
+		},
+		[queryClient],
+	);
 
 	return { undoLast };
 }
