@@ -26,7 +26,21 @@ import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { DateField } from "./DateField";
 import { InlineText } from "./InlineText";
-import { PriorityFlag } from "./PriorityFlag";
+
+const elevatedPriority = {
+	1: {
+		label: "Urgent",
+		row: "before:bg-p1 from-p1/7 to-p1/7",
+		checkbox: "border-2 border-p1",
+		text: "text-p1",
+	},
+	2: {
+		label: "High",
+		row: "before:bg-p2 from-p2/7 to-p2/7",
+		checkbox: "border-2 border-p2",
+		text: "text-p2",
+	},
+};
 
 // Distance a swipe needs to travel before release commits the action, and the
 // rubber-band ceiling past that -- dragging further doesn't do anything more,
@@ -178,6 +192,12 @@ export function TaskRow({
 	onToggleExpand?: () => void;
 }) {
 	const completed = task.status === "completed";
+	const priority =
+		!completed &&
+		!task.deletedAt &&
+		(task.priority === 1 || task.priority === 2)
+			? elevatedPriority[task.priority]
+			: undefined;
 	const { data: reminders = [] } = useAllReminders();
 	const { completeTask, updateTask } = useTaskMutations();
 	const { undoLast } = useUndo();
@@ -199,6 +219,9 @@ export function TaskRow({
 				"group flex min-h-[76px] items-start gap-1 border-b border-border py-3.5 pr-1",
 				editing && "rounded-lg bg-accent-soft",
 				swipeEnabled && "bg-background touch-pan-y",
+				priority &&
+					"relative bg-linear-to-r before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-[3px]",
+				priority?.row,
 			)}
 			style={{
 				paddingLeft: `${depth * 16}px`,
@@ -257,7 +280,7 @@ export function TaskRow({
 						"flex size-[21px] items-center justify-center rounded-[7px] border-[1.5px]",
 						completed
 							? "border-accent bg-accent text-accent-foreground"
-							: "border-muted/70",
+							: (priority?.checkbox ?? "border-muted/70"),
 					)}
 				>
 					{completed && <Check className="size-3.5" />}
@@ -372,7 +395,11 @@ export function TaskRow({
 					{(task.recurrencePreset || task.recurrenceRRule) && (
 						<Repeat className="size-3" aria-label="Repeating task" />
 					)}
-					{task.priority < 4 && <PriorityFlag priority={task.priority} />}
+					{priority && (
+						<span className={cn("font-semibold", priority.text)}>
+							{priority.label}
+						</span>
+					)}
 				</div>
 			</div>
 		</div>
