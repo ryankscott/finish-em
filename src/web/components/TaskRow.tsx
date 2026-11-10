@@ -224,7 +224,7 @@ export function TaskRow({
 				priority?.row,
 			)}
 			style={{
-				paddingLeft: `${depth * 16}px`,
+				paddingLeft: `${8 + depth * 16}px`,
 				transform: swipeEnabled ? `translateX(${dragX}px)` : undefined,
 				transition:
 					swipeEnabled && !dragging
