@@ -7,515 +7,531 @@ import {
 	startOfDay,
 	startOfWeek,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Columns3, Rows3 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { CalendarEvent, Task } from "@/server/types";
-
+import { toDisplayString } from "@/lib/task-links";
+import type { Task } from "@/server/types";
 import { DayGrid } from "../components/DayGrid";
 import { EventRow } from "../components/EventRow";
 import { GoalsRail } from "../components/GoalsRail";
 import { GoalsSummary } from "../components/GoalsSummary";
+import { PlanningTaskDialog } from "../components/PlanningTaskDialog";
 import { TaskRow } from "../components/TaskRow";
+import { api } from "../lib/api";
 import { cn } from "../lib/cn";
 import {
+	DEFAULT_WORKDAY_MINUTES,
+	dayCapacity,
+	dayKey,
 	dayWindow,
+	formatMinutes,
 	GRID_END_HOUR,
 	GRID_START_HOUR,
-	type GridItem,
 	nextFreeSlot,
 	taskEstimate,
 } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
+import {
+	PLANNING_DRAG_TYPE,
+	type PlanningMode,
+	pagePlanningDate,
+	plannedForDay,
+	planningBlocks,
+	planningGroups,
+	planTaskPatch,
+} from "../lib/planning";
 import {
 	useCalendarEvents,
 	useProjects,
 	useTaskMutations,
 	useTasks,
 } from "../lib/queries";
+import { peekUndo, useUndo } from "../lib/undo";
 import { useAddTodoFromEvent } from "../lib/use-add-todo-from-event";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { ViewTitle } from "./SimpleViews";
 
-type ViewMode = "day" | "work-week" | "week";
-type Layout = "vertical" | "horizontal";
-
-const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
-
-function columnStartDate(anchorDate: Date, viewMode: ViewMode): Date {
-	if (viewMode === "work-week")
-		return startOfWeek(anchorDate, { weekStartsOn: 1 });
-	return anchorDate;
-}
-
-function daysToShow(viewMode: ViewMode): number {
-	if (viewMode === "day") return 1;
-	if (viewMode === "work-week") return 5;
-	return 7;
-}
-
-const nextMode: Record<ViewMode, ViewMode> = {
-	day: "work-week",
-	"work-week": "week",
-	week: "day",
-};
-
-/** Shown on the mobile view-mode button, which cycles through the same order. */
-const VIEW_MODE_LABELS: Record<ViewMode, string> = {
-	day: "Day",
-	"work-week": "Work week",
-	week: "Week",
-};
+const modes = [
+	{ value: "agenda", label: "Agenda" },
+	{ value: "week", label: "Week" },
+	{ value: "timebox", label: "Timebox" },
+] as const;
 
 export function PlanningView() {
 	const ui = useUi();
 	const isMobile = useIsMobile();
 	const { data: projects = [] } = useProjects();
+	const {
+		data: tasks = [],
+		isPending: loadingTasks,
+		isError: failedTasks,
+	} = useTasks({ status: "open" });
 	const { completeTask, deleteTask, updateTask } = useTaskMutations();
+	const { undoLast } = useUndo();
 	const { onAddTodo, addingUid } = useAddTodoFromEvent();
-	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
-	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
-	const [layout, setLayout] = useState<Layout>("vertical");
-	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [day, setDay] = useState(() => startOfDay(new Date()));
+	const [mode, setMode] = useState<PlanningMode>("agenda");
+	const [selectedId, setSelectedId] = useState<number | null>(null);
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const [editing, setEditing] = useState<{ id: number; day: Date } | null>(
+		null,
+	);
+	const [error, setError] = useState("");
+	const [saving, setSaving] = useState(false);
+	const savingRef = useRef(false);
 	const [goalAddSignal, setGoalAddSignal] = useState(0);
 
-	const goalPeriodType = viewMode === "day" ? "daily" : "weekly";
-	const goalPeriodStart =
-		viewMode === "day"
-			? dateKey(anchorDate)
-			: dateKey(startOfWeek(anchorDate, { weekStartsOn: 1 }));
-
-	const colStart = columnStartDate(anchorDate, viewMode);
-	const days = daysToShow(viewMode);
-	const rangeEnd = addDays(colStart, days - 1);
-
-	const { data: rangeTasks = [] } = useTasks({
-		status: "open",
-		from: startOfDay(colStart).toISOString(),
+	const today = startOfDay(new Date());
+	const weekStart = startOfWeek(day, { weekStartsOn: 1 });
+	const weekDays = Array.from({ length: 7 }, (_, index) =>
+		addDays(weekStart, index),
+	);
+	const weekMode = mode === "week";
+	const timebox = mode === "timebox";
+	const rangeStart = weekMode ? weekStart : day;
+	const rangeEnd = weekMode ? addDays(weekStart, 6) : day;
+	const {
+		data: events = [],
+		isPending: loadingEvents,
+		isError: failedEvents,
+	} = useCalendarEvents({
+		from: rangeStart.toISOString(),
 		to: endOfDay(rangeEnd).toISOString(),
 	});
-	const { data: pastTasks = [] } = useTasks({
-		status: "open",
-		to: startOfDay(colStart).toISOString(),
-	});
-	const { data: events = [] } = useCalendarEvents({
-		from: startOfDay(colStart).toISOString(),
-		to: endOfDay(rangeEnd).toISOString(),
-	});
-	const inboxProject = projects.find((p) => p.isInbox);
-	const { data: inboxTasks = [] } = useTasks(
-		{ status: "open", projectId: inboxProject?.id },
-		inboxProject != null,
+	const { needsAttention, unplanned } = planningGroups(tasks, today);
+	const committed = plannedForDay(tasks, day);
+	const columns = (weekMode ? weekDays : [day]).map((date) => ({
+		date,
+		tasks: weekMode ? plannedForDay(tasks, date) : committed,
+		events: events.filter((event) => isSameDay(parseISO(event.startAt), date)),
+	}));
+	const visibleIds = new Set(
+		columns.flatMap((column) => column.tasks.map((task) => task.id)),
 	);
+	const attention = needsAttention.filter((task) => !visibleIds.has(task.id));
+	const orderedTasks = [
+		...columns.flatMap((column) => column.tasks),
+		...attention,
+		...unplanned,
+	];
+	const selected = orderedTasks.find((task) => task.id === selectedId);
+	const editTask = editing
+		? tasks.find((task) => task.id === editing.id)
+		: undefined;
+	const projectById = new Map(projects.map((project) => [project.id, project]));
 
-	// What is committed to the focused day, which is the axis the grid works on
-	// (the columns above are keyed by deadline instead).
-	const dayCommittedWindow = dayWindow(colStart);
-	const { data: dayCommitted = [] } = useTasks({
-		status: "open",
-		scheduledFrom: dayCommittedWindow.from,
-		scheduledTo: dayCommittedWindow.to,
-	});
+	function changeDay(date: Date) {
+		setDay(date);
+		setSelectedId(null);
+		scrollRef.current
+			?.querySelector("[data-radix-scroll-area-viewport]")
+			?.scrollTo({ top: 0 });
+	}
 
-	// Seven columns at 56px an hour is unreadable at this width, and HTML5 drag
-	// does not work on touch.
-	const showGrid = viewMode === "day" && !isMobile;
+	function goToToday() {
+		changeDay(startOfDay(new Date()));
+		if (weekMode) setMode("agenda");
+	}
 
-	const projectById = useMemo(
-		() => new Map(projects.map((p) => [p.id, p])),
-		[projects],
-	);
+	function changeMode(next: PlanningMode) {
+		setMode(next);
+		setSelectedId(null);
+		scrollRef.current
+			?.querySelector("[data-radix-scroll-area-viewport]")
+			?.scrollTo({ top: 0 });
+	}
 
-	const columns = useMemo(() => {
-		const overdue = pastTasks.filter(
-			(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
-		);
-		const out: Array<{
-			key: string;
-			label: string;
-			tasks: Task[];
-			events: CalendarEvent[];
-			isToday: boolean;
-		}> = [
-			{
-				key: "inbox",
-				// Unscheduled captures needing triage; dated inbox tasks already
-				// show in their day / overdue column, so exclude them here.
-				label: "Inbox",
-				tasks: inboxTasks.filter((t) => t.dueAt === null),
-				events: [],
-				isToday: false,
-			},
-			{
-				key: "overdue",
-				label: "Overdue",
-				tasks: overdue,
-				events: [],
-				isToday: false,
-			},
-		];
-		for (let i = 0; i < days; i++) {
-			const date = addDays(colStart, i);
-			out.push({
-				key: format(date, "yyyy-MM-dd"),
-				label: format(date, "EEE d MMM"),
-				tasks: rangeTasks.filter(
-					(t) => t.dueAt && isSameDay(parseISO(t.dueAt), date),
-				),
-				events: events
-					.filter((e) => isSameDay(parseISO(e.startAt), date))
-					.sort((a, b) => {
-						if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
-						return a.startAt.localeCompare(b.startAt);
-					}),
-				isToday: isSameDay(date, new Date()),
-			});
-		}
-		return out;
-	}, [inboxTasks, pastTasks, rangeTasks, events, colStart, days]);
+	function openPlan(task: Task, date: Date) {
+		setError("");
+		setEditing({ id: task.id, day: date });
+	}
 
-	const flatTasks = useMemo(
-		() =>
-			columns.flatMap((col, ci) =>
-				col.tasks.map((task, ri) => ({ task, ci, ri })),
-			),
-		[columns],
-	);
-
-	const clampedIndex = Math.min(
-		selectedIndex,
-		Math.max(0, flatTasks.length - 1),
-	);
-	const selectedFlat = flatTasks[clampedIndex];
-	const selected = selectedFlat?.task;
-
-	useHotkeyScope({
-		j: () =>
-			setSelectedIndex((i) =>
-				Math.min(i + 1, Math.max(0, flatTasks.length - 1)),
-			),
-		arrowdown: () =>
-			setSelectedIndex((i) =>
-				Math.min(i + 1, Math.max(0, flatTasks.length - 1)),
-			),
-		k: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
-		arrowup: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
-		"[": () => setAnchorDate((d) => addDays(d, -7)),
-		"]": () => setAnchorDate((d) => addDays(d, 7)),
-		t: () => {
-			setAnchorDate(startOfDay(new Date()));
-			setSelectedIndex(0);
-		},
-		v: () => setViewMode((mode) => nextMode[mode]),
-		g: () => setGoalAddSignal((n) => n + 1),
-		x: () => {
-			if (!selected) return;
-			completeTask.mutate(selected, {
-				onSuccess: () => toast.success("Task completed"),
-				onError: (err) => toast.error(err.message),
-			});
-		},
-		d: () => {
-			if (!selected) return;
-			deleteTask.mutate(selected, {
-				onSuccess: () => toast.success("Task deleted"),
-				onError: (err) => toast.error(err.message),
-			});
-		},
-		e: () => selected && ui.openTaskEditor(selected),
-		enter: () => selected && ui.openTaskEditor(selected),
-		// One keystroke, no placement mode: a decent slot chosen now beats a
-		// perfect slot chosen never.
-		b: () => {
-			// On the grid the column list is not rendered, so `selected` points at
-			// something invisible. The rail's first task is what the eye is on.
-			const target = showGrid
-				? dayCommitted.find((t) => t.plannedStartAt === null)
-				: selected;
-			if (!target) return;
-			const day = startOfDay(colStart);
-			const occupied: GridItem[] = [
-				...events
-					.filter(
-						(e) => !e.allDay && e.endAt && isSameDay(parseISO(e.startAt), day),
-					)
-					.map((e) => ({
-						key: `${e.uid}-${e.recurrenceId}`,
-						startAt: e.startAt,
-						minutes: Math.max(
-							15,
-							(new Date(e.endAt as string).getTime() -
-								new Date(e.startAt).getTime()) /
-								60_000,
-						),
-					})),
-				...dayCommitted
-					.filter((t) => t.plannedStartAt !== null && t.id !== target.id)
-					.map((t) => ({
-						key: String(t.id),
-						startAt: t.plannedStartAt as string,
-						minutes: taskEstimate(t),
-					})),
-			];
-			const isToday = isSameDay(day, new Date());
-			const after = isToday ? new Date() : day;
-			const slot = nextFreeSlot(occupied, {
-				day,
-				after,
-				minutes: taskEstimate(target),
-				startHour: GRID_START_HOUR,
-				endHour: GRID_END_HOUR,
-			});
-			if (!slot) {
-				toast.error("No free slot left in this day");
-				return;
-			}
-			updateTask.mutate(
-				{
-					taskId: target.id,
-					// Committing to the day as well, so `b` works on a task that is
-					// only in this column because of its deadline.
-					input: {
-						scheduledAt: day.toISOString(),
-						plannedStartAt: slot.toISOString(),
+	async function savePlan(
+		task: Task,
+		date: string,
+		time?: string,
+		fromDialog = false,
+	) {
+		if (savingRef.current) return;
+		savingRef.current = true;
+		setSaving(true);
+		setError("");
+		try {
+			const patch = date
+				? planTaskPatch(task, date, time)
+				: { scheduledAt: null, plannedStartAt: null };
+			if (time && patch.plannedStartAt) {
+				const targetDay = parseISO(date);
+				const start = parseISO(patch.plannedStartAt);
+				if (format(start, "HH:mm") !== time)
+					throw new Error("Choose a valid local start time.");
+				const targetEvents =
+					isSameDay(targetDay, day) && !loadingEvents && !failedEvents
+						? events
+						: await api.listCalendarEvents(dayWindow(targetDay));
+				const available = nextFreeSlot(
+					planningBlocks(targetEvents, tasks, targetDay, task.id),
+					{
+						day: targetDay,
+						after: start,
+						minutes: taskEstimate(task),
+						startHour: GRID_START_HOUR,
+						endHour: GRID_END_HOUR,
+						snapMinutes: 1,
 					},
-					before: target,
-				},
-				{
-					onSuccess: () =>
-						toast.success(`Timeboxed for ${format(slot, "HH:mm")}`),
-					onError: (err) => toast.error(err.message),
+				);
+				if (available?.getTime() !== start.getTime()) {
+					throw new Error(
+						"Choose a free slot between 7:00 and 20:00 that fits the task.",
+					);
+				}
+			}
+			await updateTask.mutateAsync({
+				taskId: task.id,
+				input: patch,
+				before: task,
+			});
+			if (fromDialog) {
+				if (date) changeDay(parseISO(date));
+				setEditing(null);
+			}
+			const undo = peekUndo();
+			toast.success(
+				time
+					? `Timeboxed for ${time}`
+					: date
+						? `Planned for ${format(parseISO(date), "d MMM")}`
+						: "Removed from plan",
+				undo && {
+					action: { label: "Undo", onClick: () => void undoLast(undo) },
 				},
 			);
-		},
-		"shift+b": () => {
-			const target = showGrid
-				? [...dayCommitted].reverse().find((t) => t.plannedStartAt !== null)
-				: selected;
-			if (!target) return;
-			updateTask.mutate(
-				{
-					taskId: target.id,
-					input: { plannedStartAt: null },
-					before: target,
-				},
-				{
-					onSuccess: () => toast.success("Timebox cleared"),
+		} catch (failure) {
+			const message =
+				failure instanceof Error ? failure.message : String(failure);
+			if (fromDialog) setError(message);
+			else toast.error(message);
+		} finally {
+			savingRef.current = false;
+			setSaving(false);
+		}
+	}
+
+	function selectRelative(direction: number) {
+		const index = orderedTasks.findIndex((task) => task.id === selectedId);
+		const next = Math.min(
+			Math.max(index + direction, 0),
+			orderedTasks.length - 1,
+		);
+		setSelectedId(orderedTasks[next]?.id ?? null);
+	}
+
+	useHotkeyScope(
+		{
+			j: () => selectRelative(1),
+			arrowdown: () => selectRelative(1),
+			k: () => selectRelative(-1),
+			arrowup: () => selectRelative(-1),
+			"[": () => changeDay(pagePlanningDate(day, mode, -1)),
+			"]": () => changeDay(pagePlanningDate(day, mode, 1)),
+			t: goToToday,
+			v: () =>
+				changeMode(
+					modes[
+						(modes.findIndex((entry) => entry.value === mode) + 1) %
+							modes.length
+					].value,
+				),
+			g: () => setGoalAddSignal((n) => n + 1),
+			x: () =>
+				selected &&
+				completeTask.mutate(selected, {
+					onSuccess: () => toast.success("Task completed"),
 					onError: (err) => toast.error(err.message),
-				},
-			);
+				}),
+			d: () =>
+				selected &&
+				deleteTask.mutate(selected, {
+					onSuccess: () => toast.success("Task deleted"),
+					onError: (err) => toast.error(err.message),
+				}),
+			e: () => selected && ui.openTaskEditor(selected),
+			enter: (event) => {
+				if (
+					event.target instanceof HTMLElement &&
+					event.target.closest("button, a")
+				)
+					return false;
+				if (selected) ui.openTaskEditor(selected);
+				else return false;
+			},
+			b: () => {
+				const task =
+					selected ??
+					(timebox
+						? committed.find((item) => !item.plannedStartAt)
+						: undefined);
+				if (!task || loadingEvents || failedEvents) return;
+				const slot = nextFreeSlot(planningBlocks(events, tasks, day, task.id), {
+					day,
+					after: isSameDay(day, today) ? new Date() : day,
+					minutes: taskEstimate(task),
+					startHour: GRID_START_HOUR,
+					endHour: GRID_END_HOUR,
+				});
+				if (!slot) toast.error("No free slot left in this day");
+				else void savePlan(task, dayKey(day), format(slot, "HH:mm"));
+			},
+			"shift+b": () => {
+				if (selected?.scheduledAt && selected.plannedStartAt) {
+					void savePlan(selected, dayKey(parseISO(selected.scheduledAt)), "");
+				}
+			},
 		},
+		{ enabled: !editing },
+	);
+
+	function taskRow(task: Task, date: Date, draggable = false) {
+		return (
+			<div key={task.id} className="flex min-w-0 items-start gap-1">
+				<div className="min-w-0 flex-1">
+					<TaskRow
+						task={task}
+						project={projectById.get(task.projectId)}
+						selected={selected?.id === task.id}
+						depth={0}
+						hasSubtasks={false}
+						expanded={false}
+						showProject
+						onOpen={() => ui.openTaskEditor(task)}
+					/>
+				</div>
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					className="min-h-10 shrink-0 px-2 md:min-h-8"
+					aria-label={`${timebox ? "Set timebox for" : "Plan"} ${toDisplayString(task.title)}`}
+					draggable={draggable}
+					onDragStart={
+						draggable
+							? (event) =>
+									event.dataTransfer.setData(
+										PLANNING_DRAG_TYPE,
+										String(task.id),
+									)
+							: undefined
+					}
+					onClick={() => openPlan(task, date)}
+				>
+					{timebox ? "Set time" : "Plan"}
+				</Button>
+			</div>
+		);
+	}
+
+	const goals = {
+		periodType: weekMode ? ("weekly" as const) : ("daily" as const),
+		periodStart: dayKey(rangeStart),
+		addSignal: goalAddSignal,
+	};
+	const capacity = dayCapacity({
+		workdayMinutes: DEFAULT_WORKDAY_MINUTES,
+		events,
+		day,
+		tasks: committed,
 	});
 
 	return (
 		<>
-			<ViewTitle
-				title={`Planning · ${format(colStart, "d MMM")} - ${format(rangeEnd, "d MMM")}`}
-			/>
+			<ViewTitle title="Planning" />
 			<div className="flex min-h-0 flex-1 flex-col">
-				{isMobile && (
-					<div className="workspace-page shrink-0 !pt-0 !pb-3">
-						<GoalsSummary
-							periodType={goalPeriodType}
-							periodStart={goalPeriodStart}
-							addSignal={goalAddSignal}
-						/>
+				<div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/60 pb-3">
+					<div className="flex items-center gap-1">
+						<Button
+							variant="outline"
+							size="icon"
+							className="size-11 md:size-9"
+							aria-label={weekMode ? "Previous week" : "Previous day"}
+							onClick={() => changeDay(pagePlanningDate(day, mode, -1))}
+						>
+							<ChevronLeft />
+						</Button>
+						<Button variant="outline" onClick={goToToday}>
+							Go to today
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							className="size-11 md:size-9"
+							aria-label={weekMode ? "Next week" : "Next day"}
+							onClick={() => changeDay(pagePlanningDate(day, mode, 1))}
+						>
+							<ChevronRight />
+						</Button>
 					</div>
-				)}
-				<div className="flex items-center gap-2 border-b border-border/60 py-2">
-					{/* Week paging and "today" show on every screen size; the hotkeys
-					    ([ ] t) alone gave no visible way to change week. The view-mode
-					    toggle stays phone-only because desktop has the v hotkey. */}
-					<div
-						className={cn(
-							"flex items-center gap-1",
-							isMobile && "min-w-0 flex-1",
-						)}
+					<span
+						className="min-w-16 flex-1 font-medium md:min-w-32"
+						aria-live="polite"
 					>
-						<button
-							type="button"
-							aria-label="Previous week"
-							onClick={() => setAnchorDate((d) => addDays(d, -7))}
-							title="Previous week ( [ )"
-							className={cn(
-								"flex shrink-0 items-center justify-center rounded-md border border-border text-muted hover:text-foreground",
-								isMobile ? "h-9 w-9" : "h-7 w-7",
-							)}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								setAnchorDate(startOfDay(new Date()));
-								setSelectedIndex(0);
-							}}
-							title="This week ( t )"
-							className={cn(
-								"shrink-0 rounded-md border border-border px-3 text-xs text-muted hover:text-foreground",
-								isMobile ? "h-9" : "h-7",
-							)}
-						>
-							Today
-						</button>
-						<button
-							type="button"
-							aria-label="Next week"
-							onClick={() => setAnchorDate((d) => addDays(d, 7))}
-							title="Next week ( ] )"
-							className={cn(
-								"flex shrink-0 items-center justify-center rounded-md border border-border text-muted hover:text-foreground",
-								isMobile ? "h-9 w-9" : "h-7 w-7",
-							)}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</button>
-						{isMobile ? (
-							<button
-								type="button"
-								onClick={() => setViewMode((mode) => nextMode[mode])}
-								className="ml-1 h-9 min-w-0 flex-1 truncate rounded-md border border-border px-2 text-xs text-muted"
+						{weekMode
+							? `${format(rangeStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`
+							: format(day, "EEE d MMM")}
+					</span>
+					<fieldset className="flex gap-1" aria-label="Planning view">
+						{modes.map(({ value, label }) => (
+							<Button
+								key={value}
+								variant={mode === value ? "default" : "ghost"}
+								aria-pressed={mode === value}
+								onClick={() => changeMode(value)}
 							>
-								{VIEW_MODE_LABELS[viewMode]}
-							</button>
-						) : null}
-					</div>
-					<div
-						className={cn(
-							"flex items-center rounded-md border border-border p-0.5",
-							!isMobile && "ml-auto",
-						)}
+								{label}
+							</Button>
+						))}
+					</fieldset>
+					<fieldset
+						className="grid w-full grid-cols-7 gap-1"
+						aria-label="Choose a day"
 					>
-						<button
-							type="button"
-							onClick={() => setLayout("vertical")}
-							aria-label="Stack columns vertically"
-							title="Stack columns vertically"
-							className={cn(
-								"flex items-center gap-1 rounded px-2 py-1",
-								layout === "vertical"
-									? "bg-accent/15 text-accent"
-									: "text-muted hover:text-foreground",
-							)}
-						>
-							<Rows3 className="h-3.5 w-3.5" />
-						</button>
-						<button
-							type="button"
-							onClick={() => setLayout("horizontal")}
-							aria-label="Arrange columns horizontally"
-							title="Arrange columns horizontally"
-							className={cn(
-								"flex items-center gap-1 rounded px-2 py-1",
-								layout === "horizontal"
-									? "bg-accent/15 text-accent"
-									: "text-muted hover:text-foreground",
-							)}
-						>
-							<Columns3 className="h-3.5 w-3.5" />
-						</button>
-					</div>
+						{weekDays.map((date) => (
+							<Button
+								key={dayKey(date)}
+								variant={isSameDay(date, day) ? "outline" : "ghost"}
+								className={cn(
+									"h-11 min-w-0 flex-col gap-0 px-0 text-xs md:h-10",
+									isSameDay(date, day) && "border border-accent/50",
+								)}
+								aria-label={format(date, "EEEE d MMMM")}
+								aria-current={isSameDay(date, today) ? "date" : undefined}
+								aria-pressed={isSameDay(date, day)}
+								onClick={() => {
+									changeDay(date);
+									if (weekMode) setMode("agenda");
+								}}
+							>
+								<span>
+									{isSameDay(date, today) ? "Today" : format(date, "EEE")}
+								</span>
+								<span>{format(date, "d")}</span>
+							</Button>
+						))}
+					</fieldset>
 				</div>
-				<div className="flex min-h-0 flex-1 gap-4">
-					<div className="flex min-h-0 min-w-0 flex-1 flex-col">
-						{showGrid ? (
-							<DayGrid day={colStart} />
-						) : (
-							<ScrollArea
-								className="flex-1"
-								horizontal={layout === "horizontal"}
-							>
-								<div
-									className={cn(
-										"w-full min-w-0 gap-2 py-3",
-										layout === "vertical"
-											? "flex flex-col"
-											: "flex flex-row items-start overflow-x-auto",
-									)}
+				<ScrollArea ref={scrollRef} className="min-h-0 flex-1">
+					<div className="grid min-w-0 gap-3 py-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
+						{isMobile && <GoalsSummary {...goals} />}
+						<div className="grid min-w-0 content-start gap-3">
+							{loadingTasks && (
+								<output className="text-sm text-muted">Loading tasks…</output>
+							)}
+							{failedTasks && (
+								<p role="alert" className="text-sm text-p1">
+									Couldn’t load tasks.
+								</p>
+							)}
+							{failedEvents && (
+								<p role="alert" className="text-sm text-p1">
+									Couldn’t load calendar events.
+								</p>
+							)}
+							{timebox && (
+								<>
+									{!failedEvents &&
+										!loadingEvents &&
+										!failedTasks &&
+										!loadingTasks && (
+											<p className="text-sm text-muted">
+												{formatMinutes(capacity.plannedMinutes)} planned ·{" "}
+												{formatMinutes(Math.abs(capacity.remainingMinutes))}{" "}
+												{capacity.isOver ? "over capacity" : "available"}
+											</p>
+										)}
+									<DayGrid
+										key={dayKey(day)}
+										day={day}
+										committed={committed}
+										events={events}
+										onPlace={(task, start) =>
+											void savePlan(task, dayKey(day), format(start, "HH:mm"))
+										}
+										onEdit={(task) => openPlan(task, day)}
+									/>
+								</>
+							)}
+							{columns.map((column) => (
+								<section
+									key={dayKey(column.date)}
+									className="min-w-0 rounded-lg border border-border/60 bg-surface/40 p-2"
 								>
-									{columns.map((col, ci) => {
-										const itemCount = col.tasks.length + col.events.length;
-										return (
-											<div
-												key={col.key}
-												className={cn(
-													"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
-													layout === "horizontal" && "w-80 shrink-0",
-													ci === selectedFlat?.ci && "border-accent/50",
-												)}
-											>
-												<div
-													className={cn(
-														"border-b border-border/60 px-3 py-2 text-xs font-semibold",
-														col.key === "overdue"
-															? "text-p1"
-															: col.isToday
-																? "text-accent"
-																: "text-muted",
-													)}
-												>
-													{col.label}
-													<span className="ml-2 font-normal text-muted">
-														{itemCount}
-													</span>
-												</div>
-												<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
-													{col.events.length > 0 ? (
-														<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
-															{col.events.map((event) => (
-																<EventRow
-																	key={`${event.uid}-${event.recurrenceId}`}
-																	event={event}
-																	onAddTodo={onAddTodo}
-																	adding={addingUid === event.uid}
-																/>
-															))}
-														</div>
-													) : null}
-													{itemCount === 0 ? (
-														<p className="px-2 py-1.5 text-xs text-muted/50">
-															No tasks
-														</p>
-													) : (
-														col.tasks.map((task, ri) => (
-															<TaskRow
-																key={task.id}
-																task={task}
-																project={projectById.get(task.projectId)}
-																selected={
-																	ci === selectedFlat?.ci &&
-																	ri === selectedFlat?.ri
-																}
-																depth={0}
-																hasSubtasks={false}
-																expanded={false}
-																showProject
-																onOpen={() => ui.openTaskEditor(task)}
-															/>
-														))
-													)}
-												</div>
-											</div>
-										);
-									})}
-								</div>
-							</ScrollArea>
-						)}
-					</div>
-					{!isMobile && (
-						<div className="min-h-0 overflow-y-auto py-3">
-							<GoalsRail
-								periodType={goalPeriodType}
-								periodStart={goalPeriodStart}
-								addSignal={goalAddSignal}
-							/>
+									<h2 className="px-2 py-1 text-sm font-semibold">
+										{timebox
+											? "Planned tasks"
+											: `${isSameDay(column.date, today) ? "Today · " : ""}${format(column.date, "EEEE d MMM")}`}
+									</h2>
+									{!timebox &&
+										column.events.map((event) => (
+											<EventRow
+												key={`${event.uid}-${event.recurrenceId}`}
+												event={event}
+												onAddTodo={onAddTodo}
+												adding={addingUid === event.uid}
+											/>
+										))}
+									{column.tasks.map((task) =>
+										taskRow(task, column.date, timebox),
+									)}
+									{!loadingTasks &&
+										!failedTasks &&
+										column.tasks.length === 0 && (
+											<p className="px-2 py-1 text-xs text-muted">
+												No tasks planned
+											</p>
+										)}
+								</section>
+							))}
 						</div>
-					)}
-				</div>
+						<aside className="grid min-w-0 content-start gap-3">
+							{[
+								{ label: "Needs attention", tasks: attention },
+								{ label: "Unplanned", tasks: unplanned },
+							].map((section) => (
+								<section
+									key={section.label}
+									className="min-w-0 rounded-lg border border-border/60 bg-surface/40 p-2"
+								>
+									<h2 className="px-2 py-1 text-sm font-semibold">
+										{section.label}
+									</h2>
+									{section.tasks.map((task) => taskRow(task, day))}
+									{!loadingTasks &&
+										!failedTasks &&
+										section.tasks.length === 0 && (
+											<p className="px-2 py-1 text-xs text-muted">No tasks</p>
+										)}
+								</section>
+							))}
+							{!isMobile && <GoalsRail {...goals} />}
+						</aside>
+					</div>
+				</ScrollArea>
 			</div>
+			{editing && editTask && (
+				<PlanningTaskDialog
+					key={editTask.id}
+					task={editTask}
+					day={editing.day}
+					timebox={timebox}
+					pending={saving}
+					error={error}
+					onClose={() => setEditing(null)}
+					onSave={(date, time) => void savePlan(editTask, date, time, true)}
+				/>
+			)}
 		</>
 	);
 }

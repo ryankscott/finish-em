@@ -22,6 +22,13 @@ import {
 	taskEstimate,
 } from "./day-plan";
 
+import {
+	pagePlanningDate,
+	plannedForDay,
+	planningGroups,
+	planTaskPatch,
+} from "./planning";
+
 const NOW = new Date("2026-08-20T10:00:00.000Z");
 
 function task(overrides: Partial<Task> & { id: number }): Task {
@@ -515,5 +522,56 @@ describe("nextFreeSlot", () => {
 			after: at("2026-08-20", "07:00"),
 		});
 		expect(slot).toBeNull();
+	});
+});
+
+describe("Planning views", () => {
+	it("pages a day in Agenda and Timebox and a week in Week", () => {
+		const today = new Date(2026, 10, 10);
+		expect(dayKey(pagePlanningDate(today, "agenda", 1))).toBe("2026-11-11");
+		expect(dayKey(pagePlanningDate(today, "timebox", -1))).toBe("2026-11-09");
+		expect(dayKey(pagePlanningDate(today, "week", 1))).toBe("2026-11-17");
+	});
+
+	it("groups work by planned day and keeps overdue and unfinished work visible", () => {
+		const today = new Date(2026, 10, 10);
+		const items = [
+			task({
+				id: 1,
+				scheduledAt: today.toISOString(),
+				dueAt: new Date(2026, 10, 12).toISOString(),
+			}),
+			task({ id: 2, scheduledAt: new Date(2026, 10, 9).toISOString() }),
+			task({ id: 3, dueAt: new Date(2026, 10, 9).toISOString() }),
+			task({ id: 4, dueAt: today.toISOString() }),
+			task({ id: 5, someday: true }),
+		];
+		expect(plannedForDay(items, today).map((item) => item.id)).toEqual([1]);
+		const groups = planningGroups(items, today);
+		expect(groups.needsAttention.map((item) => item.id)).toEqual([2, 3]);
+		expect(groups.unplanned.map((item) => item.id)).toEqual([4]);
+	});
+
+	it("preserves a same-day timebox in Agenda and clears it when the work day moves", () => {
+		const scheduledAt = new Date(2026, 10, 10).toISOString();
+		const plannedStartAt = new Date(2026, 10, 10, 11).toISOString();
+		const item = task({
+			id: 1,
+			scheduledAt,
+			plannedStartAt,
+			dueAt: new Date(2026, 10, 13).toISOString(),
+		});
+		expect(planTaskPatch(item, "2026-11-10")).toEqual({
+			scheduledAt,
+			plannedStartAt,
+		});
+		expect(planTaskPatch(item, "2026-11-10", "")).toEqual({
+			scheduledAt,
+			plannedStartAt: null,
+		});
+		expect(planTaskPatch(item, "2026-11-11")).toEqual({
+			scheduledAt: new Date(2026, 10, 11).toISOString(),
+			plannedStartAt: null,
+		});
 	});
 });
