@@ -15,6 +15,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
 import {
+	ArrowDown,
+	ArrowUp,
 	Bell,
 	BookOpen,
 	CalendarClock,
@@ -22,7 +24,6 @@ import {
 	CheckCircle2,
 	ChevronRight,
 	Flag,
-	GripVertical,
 	Inbox,
 	Moon,
 	MoreHorizontal,
@@ -107,12 +108,33 @@ function NavLink({
 	);
 }
 
+function preventProjectDropNavigation() {
+	// dnd-kit stops the release click from bubbling, but links still have a
+	// native navigation action unless the click's default is prevented.
+	const preventClick = (event: MouseEvent) => {
+		if (
+			event.detail > 0 &&
+			event.target instanceof Element &&
+			event.target.closest("[data-project-id] a")
+		) {
+			event.preventDefault();
+		}
+	};
+	window.addEventListener("click", preventClick, true);
+	window.setTimeout(
+		() => window.removeEventListener("click", preventClick, true),
+		50,
+	);
+}
+
 function ProjectNavLink({
 	project,
 	count,
 	active,
 	disabled,
 	instructionsId,
+	canMoveUp,
+	canMoveDown,
 	onMove,
 }: {
 	project: Project;
@@ -120,6 +142,8 @@ function ProjectNavLink({
 	active: boolean;
 	disabled: boolean;
 	instructionsId: string;
+	canMoveUp: boolean;
+	canMoveDown: boolean;
 	onMove: (direction: -1 | 1) => void;
 }) {
 	const ui = useUi();
@@ -129,7 +153,6 @@ function ProjectNavLink({
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const {
-		attributes,
 		listeners,
 		setNodeRef,
 		setActivatorNodeRef,
@@ -138,9 +161,19 @@ function ProjectNavLink({
 		isDragging,
 	} = useSortable({ id: project.id, disabled });
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: native controls handle activation; the row keeps those keys out of the global shortcuts.
 		<div
 			ref={setNodeRef}
 			data-project-id={project.id}
+			onKeyDown={(event) => {
+				if (
+					(event.key === "Enter" || event.key === " ") &&
+					event.target instanceof Element &&
+					event.target.closest("a, button")
+				) {
+					event.stopPropagation();
+				}
+			}}
 			style={{
 				transform: CSS.Transform.toString(transform),
 				transition,
@@ -152,30 +185,19 @@ function ProjectNavLink({
 				isDragging && "bg-accent-soft shadow-md ring-1 ring-accent",
 			)}
 		>
-			<button
-				type="button"
-				ref={setActivatorNodeRef}
-				{...attributes}
-				{...listeners}
-				aria-label={`Reorder ${project.name}`}
-				aria-describedby={instructionsId}
-				onKeyDown={(e) => {
-					if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-						e.preventDefault();
-						e.stopPropagation();
-						onMove(e.key === "ArrowUp" ? -1 : 1);
-					}
-				}}
-				className="flex min-h-11 md:min-h-9 w-6 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg text-muted active:cursor-grabbing [@media(pointer:coarse)]:w-11"
-				disabled={disabled}
-			>
-				<GripVertical className="size-3.5" />
-			</button>
 			<Link
+				ref={setActivatorNodeRef}
+				{...listeners}
 				to="/projects/$projectId"
 				params={{ projectId: String(project.id) }}
+				draggable={false}
 				aria-current={active ? "page" : undefined}
-				className="flex min-h-11 md:min-h-9 min-w-0 flex-1 items-center gap-2 py-2"
+				aria-describedby={instructionsId}
+				className={cn(
+					"flex min-h-11 md:min-h-9 min-w-0 flex-1 select-none items-center gap-2 py-2 pl-2 [-webkit-touch-callout:none]",
+					!disabled && "[@media(pointer:fine)]:cursor-grab",
+					isDragging && "[@media(pointer:fine)]:cursor-grabbing",
+				)}
 			>
 				<span className="flex w-4 shrink-0 items-center justify-center text-sm">
 					{project.emoji ?? <span className="size-1.5 rounded-full bg-muted" />}
@@ -183,10 +205,10 @@ function ProjectNavLink({
 				<span className="min-w-0 flex-1 break-words leading-relaxed">
 					{project.name}
 				</span>
+				{count > 0 && (
+					<span className="shrink-0 text-xs tabular-nums">{count}</span>
+				)}
 			</Link>
-			{count > 0 && (
-				<span className="shrink-0 text-xs tabular-nums">{count}</span>
-			)}
 			<Popover open={menuOpen} onOpenChange={setMenuOpen}>
 				<PopoverTrigger asChild>
 					<button
@@ -212,6 +234,36 @@ function ProjectNavLink({
 						<Pencil className="size-3.5" />
 						Edit project
 					</button>
+					{(
+						[
+							{
+								direction: -1,
+								label: "Move up",
+								Icon: ArrowUp,
+								available: canMoveUp,
+							},
+							{
+								direction: 1,
+								label: "Move down",
+								Icon: ArrowDown,
+								available: canMoveDown,
+							},
+						] as const
+					).map(({ direction, label, Icon, available }) => (
+						<button
+							key={direction}
+							type="button"
+							disabled={disabled || !available}
+							onClick={() => {
+								setMenuOpen(false);
+								onMove(direction);
+							}}
+							className="flex min-h-11 md:min-h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs enabled:hover:bg-surface disabled:opacity-40"
+						>
+							<Icon className="size-3.5" />
+							{label}
+						</button>
+					))}
 					<button
 						type="button"
 						onClick={() => {
@@ -454,8 +506,8 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				</button>
 			</div>
 			<p id={instructionsId} className="sr-only">
-				Drag the grip to reorder projects, or focus it and press the up and down
-				arrow keys.
+				Drag the project to reorder it, or use Move up and Move down in its
+				actions menu.
 			</p>
 			<div className="sr-only" aria-live="polite">
 				{announcement}
@@ -463,7 +515,9 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
+				onDragCancel={preventProjectDropNavigation}
 				onDragEnd={({ active, over }) => {
+					preventProjectDropNavigation();
 					if (!over || active.id === over.id || reorderProjects.isPending)
 						return;
 					reorderProjects.mutate(
@@ -483,7 +537,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 					items={visibleProjects.map((p) => p.id)}
 					strategy={verticalListSortingStrategy}
 				>
-					{visibleProjects.map((project) => (
+					{visibleProjects.map((project, at) => (
 						<ProjectNavLink
 							key={project.id}
 							project={project}
@@ -491,10 +545,9 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 							active={pathname === `/projects/${project.id}`}
 							disabled={reorderProjects.isPending}
 							instructionsId={instructionsId}
+							canMoveUp={at > 0}
+							canMoveDown={at < visibleProjects.length - 1}
 							onMove={(direction) => {
-								const at = visibleProjects.findIndex(
-									(p) => p.id === project.id,
-								);
 								const target = visibleProjects[at + direction];
 								if (!target || reorderProjects.isPending) return;
 								reorderProjects.mutate(
