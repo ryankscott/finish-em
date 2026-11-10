@@ -1,5 +1,4 @@
 import { format, parseISO } from "date-fns";
-import { X } from "lucide-react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +11,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { toDisplayString } from "@/lib/task-links";
 import type { Task } from "@/server/types";
-import { dayKey } from "../lib/day-plan";
+import {
+	dayKey,
+	GRID_END_HOUR,
+	GRID_START_HOUR,
+	SNAP_MINUTES,
+} from "../lib/day-plan";
+import { DateField } from "./DateField";
+
+const startTimes = Array.from(
+	{ length: ((GRID_END_HOUR - GRID_START_HOUR) * 60) / SNAP_MINUTES },
+	(_, index) => {
+		const minutes = GRID_START_HOUR * 60 + index * SNAP_MINUTES;
+		const hours = String(Math.floor(minutes / 60)).padStart(2, "0");
+		return `${hours}:${String(minutes % 60).padStart(2, "0")}`;
+	},
+);
+const customTimePattern = "(?:[01][0-9]|2[0-3]):[0-5][0-9]";
 
 export function PlanningTaskDialog({
 	task,
@@ -42,6 +65,11 @@ export function PlanningTaskDialog({
 			: "",
 	);
 
+	const [custom, setCustom] = useState(
+		() => !!time && !startTimes.includes(time),
+	);
+	const customTimeId = useId();
+
 	return (
 		<Dialog
 			open
@@ -49,7 +77,7 @@ export function PlanningTaskDialog({
 				if (!open && !pending) onClose();
 			}}
 		>
-			<DialogContent>
+			<DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>{timebox ? "Set timebox" : "Plan task"}</DialogTitle>
 					<DialogDescription>
@@ -66,38 +94,57 @@ export function PlanningTaskDialog({
 				>
 					<div className="grid gap-2">
 						<Label htmlFor={dateId}>Work day</Label>
-						<Input
+						<DateField
 							id={dateId}
-							type="date"
-							required
+							aria-label="Work day"
 							value={date}
-							onChange={(event) => setDate(event.target.value)}
+							onChange={setDate}
+							showIcon
+							dateOnly
+							allowNone={false}
+							className="rounded-xl border border-border bg-surface px-3 text-foreground"
 						/>
 					</div>
 					{timebox && (
 						<div className="grid gap-2">
-							<Label htmlFor={timeId}>Start time (optional)</Label>
-							<div className="flex gap-2">
-								<Input
-									id={timeId}
-									type="time"
-									value={time}
-									onChange={(event) => setTime(event.target.value)}
-								/>
-								{time && (
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										className="size-11 shrink-0 text-muted md:size-9"
-										aria-label="Clear start time"
-										title="Clear start time"
-										onClick={() => setTime("")}
-									>
-										<X aria-hidden="true" />
-									</Button>
-								)}
-							</div>
+							<Label htmlFor={timeId}>Start time</Label>
+							<Select
+								value={custom ? "custom" : time || "none"}
+								onValueChange={(value) => {
+									setCustom(value === "custom");
+									if (value !== "custom")
+										setTime(value === "none" ? "" : value);
+								}}
+							>
+								<SelectTrigger id={timeId} className="h-11 md:h-9">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="none">No start time</SelectItem>
+									<SelectItem value="custom">Enter an exact time</SelectItem>
+									<SelectSeparator />
+									{startTimes.map((option) => (
+										<SelectItem key={option} value={option}>
+											{option}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{custom && (
+								<>
+									<Label htmlFor={customTimeId}>Exact time (24-hour)</Label>
+									<Input
+										id={customTimeId}
+										type="text"
+										required
+										pattern={customTimePattern}
+										title="Enter a 24-hour time like 09:05 or 14:30"
+										placeholder="HH:mm"
+										value={time}
+										onChange={(event) => setTime(event.target.value)}
+									/>
+								</>
+							)}
 						</div>
 					)}
 					{error && (
