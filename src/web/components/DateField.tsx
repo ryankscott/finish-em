@@ -16,7 +16,10 @@ import { parseDateInput } from "../lib/date-field";
 import { useIsMobile } from "../lib/use-is-mobile";
 
 interface DateFieldProps {
+	className?: string;
+	id?: string;
 	compact?: boolean;
+	showIcon?: boolean;
 	value: string;
 	onChange: (value: string) => void;
 	dateOnly?: boolean;
@@ -35,7 +38,10 @@ export function resolveDateOnly(raw: string): string | undefined {
 
 /** Keep date phrases and existing time components intact until the user saves. */
 export function DateField({
+	className,
+	id,
 	compact = false,
+	showIcon = compact,
 	value,
 	onChange,
 	dateOnly = false,
@@ -45,6 +51,7 @@ export function DateField({
 	const isMobile = useIsMobile();
 	const inputId = useId();
 	const [open, setOpen] = useState(false);
+	const [month, setMonth] = useState(new Date());
 	const [draft, setDraft] = useState(value);
 	const [error, setError] = useState("");
 	const parse = (text: string) => {
@@ -61,6 +68,7 @@ export function DateField({
 	const changeOpen = (next: boolean) => {
 		if (next) {
 			setDraft(value);
+			setMonth(current ?? new Date());
 			setError("");
 		}
 		setOpen(next);
@@ -76,6 +84,7 @@ export function DateField({
 	};
 	const trigger = (
 		<button
+			id={id}
 			type="button"
 			onClick={isMobile ? () => changeOpen(true) : undefined}
 			aria-label={`${ariaLabel}: ${label}`}
@@ -86,9 +95,12 @@ export function DateField({
 				current ? "text-accent" : "text-muted",
 				compact &&
 					"relative min-h-7 px-0 text-[11px] md:text-xs before:absolute before:inset-x-0 before:-inset-y-2",
+				className,
 			)}
 		>
-			{compact && <CalendarIcon className="size-3.5 shrink-0" />}
+			{showIcon && (
+				<CalendarIcon aria-hidden="true" className="size-3.5 shrink-0" />
+			)}
 			<span className="min-w-0 truncate">{label}</span>
 		</button>
 	);
@@ -111,6 +123,7 @@ export function DateField({
 						type="button"
 						onClick={() => {
 							setDraft(format(preset.date, "yyyy-MM-dd"));
+							setMonth(preset.date);
 							setError("");
 						}}
 						aria-pressed={!!selected && isSameDay(selected, preset.date)}
@@ -123,7 +136,8 @@ export function DateField({
 			<Calendar
 				mode="single"
 				selected={selected}
-				defaultMonth={selected}
+				month={month}
+				onMonthChange={setMonth}
 				onSelect={(date) => {
 					if (date) {
 						setDraft(format(date, "yyyy-MM-dd"));
