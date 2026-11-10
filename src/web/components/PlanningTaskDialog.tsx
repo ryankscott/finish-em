@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { X } from "lucide-react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,10 +87,14 @@ export function PlanningTaskDialog({
 								{time && (
 									<Button
 										type="button"
-										variant="outline"
+										variant="ghost"
+										size="icon"
+										className="size-11 shrink-0 text-muted md:size-9"
+										aria-label="Clear start time"
+										title="Clear start time"
 										onClick={() => setTime("")}
 									>
-										Clear time
+										<X aria-hidden="true" />
 									</Button>
 								)}
 							</div>
@@ -104,7 +109,8 @@ export function PlanningTaskDialog({
 						{task.scheduledAt && (
 							<Button
 								type="button"
-								variant="outline"
+								variant="ghost"
+								className="text-muted"
 								disabled={pending}
 								onClick={() => onSave("")}
 							>

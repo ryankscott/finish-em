@@ -10,7 +10,7 @@ import {
 	RotateCcw,
 	Trash2,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { isOverdueDueDate } from "@/lib/datetime";
@@ -176,6 +176,7 @@ export function TaskRow({
 	hasSubtasks,
 	expanded,
 	showProject,
+	planning,
 	onOpen,
 	onToggleExpand,
 }: {
@@ -186,6 +187,7 @@ export function TaskRow({
 	hasSubtasks: boolean;
 	expanded: boolean;
 	showProject: boolean;
+	planning?: { action: ReactNode; showWorkDay: boolean };
 	/** Tap-to-edit on touch, where the `e` / enter hotkeys don't exist. */
 	onOpen?: () => void;
 	/** Chevron tap target, standing in for the `space` hotkey. */
@@ -337,7 +339,10 @@ export function TaskRow({
 					>
 						{formatMinutes(taskEstimate(task))}
 					</span>
-					{task.scheduledAt && (
+					{task.scheduledAt && planning?.showWorkDay && (
+						<span>Planned {format(parseISO(task.scheduledAt), "d MMM")}</span>
+					)}
+					{task.scheduledAt && !planning && (
 						<span>
 							<DateField
 								compact
@@ -402,6 +407,7 @@ export function TaskRow({
 					)}
 				</div>
 			</div>
+			{planning?.action}
 		</div>
 	);
 	if (!swipeEnabled) return row;

@@ -7,7 +7,13 @@ import {
 	startOfDay,
 	startOfWeek,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+	CalendarDays,
+	CalendarPlus,
+	ChevronLeft,
+	ChevronRight,
+	Clock,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -295,42 +301,56 @@ export function PlanningView() {
 		{ enabled: !editing },
 	);
 
-	function taskRow(task: Task, date: Date, draggable = false) {
+	function taskRow(task: Task, date: Date, inPlan = false) {
+		const Icon = timebox
+			? Clock
+			: task.scheduledAt
+				? CalendarDays
+				: CalendarPlus;
+		const label = timebox
+			? "Set time"
+			: task.scheduledAt
+				? "Edit plan"
+				: "Plan task";
+		const draggable = timebox && inPlan;
 		return (
-			<div key={task.id} className="flex min-w-0 items-start gap-1">
-				<div className="min-w-0 flex-1">
-					<TaskRow
-						task={task}
-						project={projectById.get(task.projectId)}
-						selected={selected?.id === task.id}
-						depth={0}
-						hasSubtasks={false}
-						expanded={false}
-						showProject
-						onOpen={() => ui.openTaskEditor(task)}
-					/>
-				</div>
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					className="min-h-10 shrink-0 px-2 md:min-h-8"
-					aria-label={`${timebox ? "Set timebox for" : "Plan"} ${toDisplayString(task.title)}`}
-					draggable={draggable}
-					onDragStart={
-						draggable
-							? (event) =>
-									event.dataTransfer.setData(
-										PLANNING_DRAG_TYPE,
-										String(task.id),
-									)
-							: undefined
-					}
-					onClick={() => openPlan(task, date)}
-				>
-					{timebox ? "Set time" : "Plan"}
-				</Button>
-			</div>
+			<TaskRow
+				key={task.id}
+				task={task}
+				project={projectById.get(task.projectId)}
+				selected={selected?.id === task.id}
+				depth={0}
+				hasSubtasks={false}
+				expanded={false}
+				showProject
+				onOpen={() => ui.openTaskEditor(task)}
+				planning={{
+					showWorkDay: !inPlan,
+					action: (
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="-mt-1 size-11 shrink-0 text-muted hover:text-foreground md:size-8"
+							aria-label={`${label} for ${toDisplayString(task.title)}`}
+							title={label}
+							draggable={draggable}
+							onDragStart={
+								draggable
+									? (event) =>
+											event.dataTransfer.setData(
+												PLANNING_DRAG_TYPE,
+												String(task.id),
+											)
+									: undefined
+							}
+							onClick={() => openPlan(task, date)}
+						>
+							<Icon aria-hidden="true" />
+						</Button>
+					),
+				}}
+			/>
 		);
 	}
 
@@ -482,9 +502,7 @@ export function PlanningView() {
 												adding={addingUid === event.uid}
 											/>
 										))}
-									{column.tasks.map((task) =>
-										taskRow(task, column.date, timebox),
-									)}
+									{column.tasks.map((task) => taskRow(task, column.date, true))}
 									{!loadingTasks &&
 										!failedTasks &&
 										column.tasks.length === 0 && (
