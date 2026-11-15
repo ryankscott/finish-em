@@ -71,7 +71,10 @@ for _ in 1 2 3 4 5 6 7 8 9 10; do
   pgrep -f "${INSTALLED_APP}/Contents/MacOS/" >/dev/null || break
   sleep 0.5
 done
-rm -rf "${INSTALLED_APP}"
+# Empty the bundle instead of deleting it: removing the folder itself needs
+# admin rights on /Applications, but the folder is owned by this user.
+mkdir -p "${INSTALLED_APP}"
+find "${INSTALLED_APP}" -mindepth 1 -delete
 ditto "${BUILT_APP}" "${INSTALLED_APP}"
 open "${INSTALLED_APP}"
 
