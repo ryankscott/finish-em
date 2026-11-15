@@ -135,7 +135,11 @@ export function TaskFields({
 					</label>
 					<Select
 						value={String(value.priority)}
-						onValueChange={(v) => set("priority", Number(v) as Priority)}
+						onValueChange={(v) => {
+							// Radix Select can emit "" while re-rendering; Number("") is 0.
+							const next = Number(v);
+							if (next >= 1 && next <= 4) set("priority", next as Priority);
+						}}
 					>
 						<SelectTrigger
 							id={`${id}-priority`}
