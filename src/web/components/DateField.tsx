@@ -234,7 +234,11 @@ export function DateField({
 			<PopoverTrigger asChild>{trigger}</PopoverTrigger>
 			<PopoverContent
 				onEscapeKeyDown={(e) => e.stopPropagation()}
-				align="end"
+				// The picker is ~500px tall. Above or below a field in the middle of
+				// a dialog it gets cut short and scrolls; beside the field it has
+				// the full window height.
+				side="left"
+				align="center"
 				collisionPadding={16}
 				className="max-h-[var(--radix-popover-content-available-height)] w-[min(350px,calc(100vw-2rem))] overflow-y-auto rounded-2xl bg-surface-raised p-0"
 				aria-label={ariaLabel}
