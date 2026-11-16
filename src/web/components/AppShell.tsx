@@ -118,6 +118,11 @@ function ResizeHandle() {
 	);
 }
 
+export function projectIdFromPath(pathname: string): number | undefined {
+	const match = /^\/projects\/(\d+)\/?$/.exec(pathname);
+	return match ? Number(match[1]) : undefined;
+}
+
 export function AppShell() {
 	const ui = useUi();
 	const navigate = useNavigate();
@@ -135,6 +140,9 @@ export function AppShell() {
 
 	// Anything that isn't a bottom-nav destination is a detail route the user
 	// needs a way out of.
+	const routeProjectId = projectIdFromPath(pathname);
+	const quickAddHere = () =>
+		ui.openQuickAdd(routeProjectId ? { projectId: routeProjectId } : {});
 	const canGoBack = !MOBILE_NAV_PATHS.includes(pathname) && pathname !== "/";
 
 	// Close the drawer on navigation, so tapping a link doesn't leave it covering
@@ -151,7 +159,7 @@ export function AppShell() {
 
 	useHotkeyScope(
 		{
-			a: () => ui.openQuickAdd(),
+			a: quickAddHere,
 			p: () => ui.setPlanDayOpen(true),
 			w: () => ui.setCloseDayOpen(true),
 			"shift+a": () => ui.openQuickAdd(),
@@ -275,7 +283,7 @@ export function AppShell() {
 							</span>
 							{!isMobile && (
 								<Button
-									onClick={() => ui.openQuickAdd()}
+									onClick={quickAddHere}
 									className="h-[42px] text-xs md:h-9"
 								>
 									<Plus className="size-4" />
@@ -367,7 +375,7 @@ export function AppShell() {
 					<MobileNav
 						pathname={pathname}
 						onOpenMenu={() => setDrawerOpen(true)}
-						onQuickAdd={() => ui.openQuickAdd()}
+						onQuickAdd={quickAddHere}
 					/>
 				) : null}
 			</div>
