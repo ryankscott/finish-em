@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/web/lib/cn";
 import { parseDateInput } from "../lib/date-field";
 import { useIsMobile } from "../lib/use-is-mobile";
+import { useKeyboardInset } from "../lib/use-viewport-inset";
 
 interface DateFieldProps {
 	className?: string;
@@ -49,6 +50,7 @@ export function DateField({
 	"aria-label": ariaLabel = "Date",
 }: DateFieldProps) {
 	const isMobile = useIsMobile();
+	const keyboardInset = useKeyboardInset();
 	const inputId = useId();
 	const [open, setOpen] = useState(false);
 	const [month, setMonth] = useState(new Date());
@@ -67,6 +69,10 @@ export function DateField({
 		: "No date";
 	const changeOpen = (next: boolean) => {
 		if (next) {
+			// An open keyboard (from the task title) covers the bottom of the
+			// sheet and cuts the picker off, so close it before the sheet opens.
+			if (isMobile && document.activeElement instanceof HTMLElement)
+				document.activeElement.blur();
 			setDraft(value);
 			setMonth(current ?? new Date());
 			setError("");
@@ -198,7 +204,15 @@ export function DateField({
 					onEscapeKeyDown={(e) => e.stopPropagation()}
 					side="bottom"
 					showClose={false}
-					className="max-h-[90dvh] overflow-y-auto rounded-t-3xl bg-surface-raised p-0 pb-safe"
+					className="max-h-[90dvh] overflow-y-auto overscroll-contain rounded-t-3xl bg-surface-raised p-0 pb-safe"
+					style={
+						keyboardInset > 0
+							? {
+									bottom: keyboardInset,
+									maxHeight: `calc(90dvh - ${keyboardInset}px)`,
+								}
+							: undefined
+					}
 					aria-describedby={undefined}
 				>
 					<div className="flex items-center justify-between px-4 pt-4">
