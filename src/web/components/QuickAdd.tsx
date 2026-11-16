@@ -1,4 +1,3 @@
-import { ArrowUpRight } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -132,7 +131,6 @@ export function QuickAdd() {
 			</span>
 			<Button type="submit" form={formId} disabled={createTask.isPending}>
 				{createTask.isPending ? "Adding…" : "Add task"}
-				<ArrowUpRight className="size-4" />
 			</Button>
 		</div>
 	);
